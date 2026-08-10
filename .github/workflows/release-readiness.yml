@@ -90,15 +90,13 @@ jobs:
           docker compose --env-file web-search/.env.production.example \
             -f web-search/docker-compose.yml config --quiet
       - run: |
-          docker run --rm \
-            -e COD_PUBLIC_HOST=codropshipping.example.com \
-            -e COD_UPSTREAM_HOST=codropshipping.com \
-            -e COD_MALL_UPSTREAM_HOST=v2.cargosoon.online \
-            -v "$PWD/web-search/Caddyfile:/etc/caddy/Caddyfile:ro" \
-            caddy:2.10-alpine caddy validate --config /etc/caddy/Caddyfile
-      - run: |
           docker compose --env-file web-search/.env.production.example \
             -f web-search/docker-compose.yml build
+      - run: |
+          test "$(docker compose --env-file web-search/.env.production.example \
+            -f web-search/docker-compose.yml config --services | grep -c '^caddy$')" -eq 0
+          docker run --rm --entrypoint nginx \
+            codropshipping/ui:1.0.0 -t
 
   release-package:
     runs-on: ubuntu-latest

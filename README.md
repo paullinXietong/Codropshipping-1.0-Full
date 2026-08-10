@@ -4,7 +4,7 @@
 
 ## 目录
 
-- `web-search/`：Nuxt 官网、浏览选品、商品详情、搜索后端、Docker 与 Caddy 配置。
+- `web-search/`：Nuxt 官网、浏览选品、商品详情、搜索后端与统一 UI Docker 配置。
 - `member-center/`：统一客户工作台，包含登录、AI 刊登、渠道、订单、履约、库存、财务和洞察。
 - `listing-backend/`：本地刊登编排服务，负责草稿、AI 建议、审阅记录与幂等发布。
 - `start-local-demo.sh`：同时启动官网、会员中心、搜索代理和刊登编排服务。
@@ -62,6 +62,6 @@ npm run serve -- --host 127.0.0.1 --port 8083
 
 ## 上线说明
 
-生产 Compose 已包含官网、新客户后台、刊登编排、搜索 API 和 Caddy，`/admin` 只进入 1.0 客户工作台。上线前由 IT 按 [DEPLOYMENT.md](./DEPLOYMENT.md) 配置服务器 Secret、外部数据库网络、备份和回滚，并按 [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) 验收。
+生产 Compose 把官网和新客户后台构建为同一个 `ui` 镜像并由 Docker 直接发布；`/` 与 `/admin/*` 不可能部署成不同版本。刊登与搜索 API 作为内部数据服务由该容器转发，不再使用 Caddy。上线前由 IT 按 [DEPLOYMENT.md](./DEPLOYMENT.md) 配置服务器 Secret、外部数据库网络、备份和回滚，并按 [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) 验收。
 
 不要把 `.env`、SQLite 数据库、API Key、Shopify 密码或管理令牌提交到 GitHub。任何曾经通过聊天或截图传递的凭证都必须先轮换。

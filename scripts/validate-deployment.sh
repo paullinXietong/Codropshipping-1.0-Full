@@ -19,11 +19,18 @@ fi
 docker compose --env-file "$ENV_FILE" \
   -f "$ROOT_DIR/web-search/docker-compose.yml" config --quiet
 
-docker run --rm \
-  -e COD_PUBLIC_HOST=codropshipping.example.com \
-  -e COD_UPSTREAM_HOST=codropshipping.com \
-  -e COD_MALL_UPSTREAM_HOST=v2.cargosoon.online \
-  -v "$ROOT_DIR/web-search/Caddyfile:/etc/caddy/Caddyfile:ro" \
-  caddy:2.10-alpine caddy validate --config /etc/caddy/Caddyfile
+if docker compose --env-file "$ENV_FILE" \
+  -f "$ROOT_DIR/web-search/docker-compose.yml" config --services | grep -qx caddy; then
+  echo "Legacy Caddy service is still present in the deployment." >&2
+  exit 1
+fi
+
+for required_service in ui listing-api search-api; do
+  if ! docker compose --env-file "$ENV_FILE" \
+    -f "$ROOT_DIR/web-search/docker-compose.yml" config --services | grep -qx "$required_service"; then
+    echo "Missing required service: $required_service" >&2
+    exit 1
+  fi
+done
 
 echo "Deployment configuration is valid."

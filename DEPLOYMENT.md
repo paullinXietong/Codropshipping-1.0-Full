@@ -6,18 +6,18 @@
 
 | 入口 | 服务 | 用途 |
 | --- | --- | --- |
-| `/` | `web` | Codropshipping 1.0 官网、浏览与选品 |
-| `/admin/*` | `member-center` | 全新客户工作台、刊登、订单、履约、库存、财务与洞察 |
+| `/` | `ui` | Codropshipping 1.0 官网、浏览与选品 |
+| `/admin/*` | `ui` | 与官网同镜像、同容器的全新客户工作台 |
 | `/listing-api/*` | `listing-api` | 草稿、AI 文案/图片、翻译与 Shopify 发布编排 |
 | `/search-api/*` | `search-api` | 商品搜索与筛选 |
-| `/api/*`、`/mall-api/*` | Caddy 安全代理 | 复用现有 CoD 业务 API |
+| `/api/*`、`/mall-api/*` | `ui` 内部 Nginx | 复用现有 CoD 业务 API |
 
-Caddy 是唯一公网入口。内部服务不映射公网端口；刊登 SQLite 使用 Docker 命名卷，搜索服务通过只读/最小权限数据库账号连接现有 MySQL 网络。
+Docker 只将统一 `ui` 容器映射到宿主机端口，`listing-api` 和 `search-api` 不映射公网端口。官网与客户后台是一份不可分割的镜像，删除了 Caddy 服务和旧 `/admin` 上游。刊登 SQLite 使用 Docker 命名卷，搜索服务通过只读/最小权限数据库账号连接现有 MySQL 网络。
 
 ## 2. 上线前准备
 
 1. 安装 Docker Engine 26+ 与 Docker Compose v2。
-2. 准备域名 DNS、服务器 80/443 端口和外部数据库 Docker 网络。
+2. 准备域名 DNS、可用的 HTTP 宿主机端口和外部数据库 Docker 网络。若服务器已有 HTTPS Nginx/负载均衡，只允许整站转发到统一 UI 端口，禁止单独配置 `/admin` 上游。
 3. 为搜索服务创建最小权限数据库账号，并准备高强度 `SEARCH_ADMIN_TOKEN`。
 4. 在阿里云百炼创建服务端专用 Key。任何曾在聊天、邮件或截图中出现的 Key 和 Shopify 密码必须先轮换。
 5. 不得把生产 `.env` 放入仓库。
@@ -28,7 +28,7 @@ cp web-search/.env.production.example /etc/codropshipping/codropshipping-1.0.env
 chmod 600 /etc/codropshipping/codropshipping-1.0.env
 ```
 
-编辑 `/etc/codropshipping/codropshipping-1.0.env`，至少替换域名、数据库密码、管理令牌、Qwen Key/Base URL、允许来源。推荐用服务器 Secret Manager 注入同名变量，不落盘明文。
+编辑 `/etc/codropshipping/codropshipping-1.0.env`，至少配置 `COD_HTTP_PORT`、数据库密码、管理令牌、Qwen Key/Base URL、允许来源。推荐用服务器 Secret Manager 注入同名变量，不落盘明文。
 
 ## 3. 构建与启动
 
@@ -46,7 +46,7 @@ docker compose --env-file /etc/codropshipping/codropshipping-1.0.env \
   -f web-search/docker-compose.yml ps
 ```
 
-Caddy 自动申请 HTTPS 证书。首次上线后执行：
+如果宿主机 80 端口已被旧服务占用，先设置 `COD_HTTP_PORT=8080`，再让现有 HTTPS 入口把整个域名转发到 `127.0.0.1:8080`。不得为 `/admin` 保留任何旧代理。首次上线后执行：
 
 ```bash
 ./scripts/smoke-test.sh https://你的生产域名
@@ -60,7 +60,7 @@ Caddy 自动申请 HTTPS 证书。首次上线后执行：
 docker compose --env-file /etc/codropshipping/codropshipping-1.0.env \
   -f web-search/docker-compose.yml ps
 docker compose --env-file /etc/codropshipping/codropshipping-1.0.env \
-  -f web-search/docker-compose.yml logs --tail=200 caddy listing-api search-api
+  -f web-search/docker-compose.yml logs --tail=200 ui listing-api search-api
 ```
 
 应监控：容器健康状态、5xx 比例、发布失败率、Qwen 超时/限流、搜索数据库连接、磁盘空间和备份年龄。不得在日志中打印 Cookie、Authorization、API Key 或完整顾客隐私数据。

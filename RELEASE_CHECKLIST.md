@@ -4,7 +4,7 @@
 
 - [ ] 根目录 `VERSION` 与四个服务的 `package.json` 均为 `1.0.0`。
 - [ ] 发布包名称为 `Codropshipping-1.0-Full-*`，SHA-256 校验通过。
-- [ ] CI 的测试、构建、release lint、Compose/Caddy 校验和 Secret 扫描全部通过。
+- [ ] CI 的测试、构建、release lint、统一 UI 镜像、Compose 校验和 Secret 扫描全部通过。
 - [ ] 生产运行依赖无 Critical/High；构建期剩余风险已记录并接受。
 - [ ] `.env`、SQLite/WAL、API Key、Cookie、Shopify 密码未进入提交。
 - [ ] 已轮换所有曾通过聊天、截图或临时文件传递的凭证。
@@ -19,6 +19,7 @@
 ## 客户全链路
 
 - [ ] 注册/登录后进入新客户工作台，不再出现旧后台 UI。
+- [ ] `/` 与 `/admin/*` 的响应来自同一个 `ui` 容器和同一发布标签。
 - [ ] 全局语言切换能翻译导航、页面字段与提示；默认英语。
 - [ ] CoD 商品详情可选择普通 List 或 AI List，并生成可恢复草稿。
 - [ ] 标题、描述、SEO 可分段 AI 优化、重新生成、采用与手工编辑。

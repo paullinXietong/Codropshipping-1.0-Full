@@ -27,19 +27,16 @@ NODE
 (cd "$ROOT_DIR/listing-backend" && npm test)
 (cd "$ROOT_DIR/web-search/search-backend" && npm test)
 (cd "$ROOT_DIR/member-center" && npm run lint:release && npm run build)
-(cd "$ROOT_DIR/web-search" && npm run build)
+(cd "$ROOT_DIR/web-search" && NUXT_IGNORE_LOCK=1 npm run build)
 
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
   docker compose --env-file "$ROOT_DIR/web-search/.env.production.example" \
     -f "$ROOT_DIR/web-search/docker-compose.yml" config --quiet
-  docker run --rm \
-    -e COD_PUBLIC_HOST=codropshipping.example.com \
-    -e COD_UPSTREAM_HOST=codropshipping.com \
-    -e COD_MALL_UPSTREAM_HOST=v2.cargosoon.online \
-    -v "$ROOT_DIR/web-search/Caddyfile:/etc/caddy/Caddyfile:ro" \
-    caddy:2.10-alpine caddy validate --config /etc/caddy/Caddyfile
+  docker compose --env-file "$ROOT_DIR/web-search/.env.production.example" \
+    -f "$ROOT_DIR/web-search/docker-compose.yml" build ui
+  docker run --rm --entrypoint nginx codropshipping/ui:1.0.0 -t
 else
-  echo "Docker is unavailable; Compose/Caddy validation must run in CI or on the IT host."
+  echo "Docker is unavailable; unified UI image validation must run in CI or on the IT host."
 fi
 
 echo "Codropshipping 1.0 source readiness checks passed."

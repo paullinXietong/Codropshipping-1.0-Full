@@ -86,7 +86,7 @@ printf '%s\n' \
   "Version: $VERSION" \
   "Package root: $PACKAGE_ROOT" \
   "Created UTC: $STAMP" \
-  'Services: storefront, member-center, listing-api, search-api, caddy' \
+  'Services: unified-ui (storefront + member-center), listing-api, search-api' \
   'Runtime secrets included: no' \
   'Runtime databases included: no' \
   'Dependencies/build caches included: no' \
