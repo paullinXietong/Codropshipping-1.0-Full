@@ -1,0 +1,68 @@
+<template>
+  <div class="w-full h-full p-5 relative">
+    <div class="h-full overflow-y-auto pb-28 p-0.5">
+      <div class="mt-16 flex flex-col items-center">
+        <div v-if="status == 1" class="flex flex-col items-center">
+          <svg t="1722591572041" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3173" width="120" height="120"><path d="M511.998465 65.290005c-246.722194 0-446.708971 200.001103-446.708971 446.708971 0 246.708891 199.986777 446.709995 446.708971 446.709995 246.708891 0 446.711018-200.001103 446.711018-446.709995C958.709483 265.291109 758.707356 65.290005 511.998465 65.290005L511.998465 65.290005zM756.308727 405.884171 465.103412 697.081299c-6.804986 6.819313-17.856693 6.819313-24.662703 0L267.69025 524.33084c-6.804986-6.804986-6.804986-17.856693 0-24.668843l54.29765-54.290487c6.804986-6.812149 17.856693-6.812149 24.662703 0l106.122993 106.107643 224.574778-224.561475c6.804986-6.812149 17.857716-6.812149 24.663726 0l54.29765 54.290487C763.128039 388.020314 763.128039 399.072021 756.308727 405.884171L756.308727 405.884171 756.308727 405.884171zM756.308727 405.884171" fill="#E66A10" p-id="3174"></path></svg>
+          <div class="mt-4 text-xl">Payment Successful</div>
+        </div>
+        <div v-if="status == 2" class="flex flex-col items-center">
+          <svg t="1722591598698" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3671" width="120" height="120"><path d="M511.999488 65.290005C265.29162 65.290005 65.290517 265.291109 65.290517 511.998977c0 246.708891 200.001103 446.709995 446.708971 446.709995S958.70846 758.707868 958.70846 511.998977C958.70846 265.291109 758.707356 65.290005 511.999488 65.290005L511.999488 65.290005zM716.82855 637.854383c6.803963 6.819313 6.803963 17.856693 0 24.676006l-54.298673 54.29765c-6.819313 6.804986-17.85567 6.820336-24.676006 0L511.999488 590.973656 386.144082 716.828039c-6.819313 6.804986-17.871019 6.804986-24.676006 0l-54.29765-54.29765c-6.804986-6.804986-6.804986-17.856693 0-24.676006l125.869732-125.855406L307.170426 386.144594c-6.804986-6.819313-6.804986-17.871019 0-24.676006l54.29765-54.298673c6.820336-6.803963 17.856693-6.803963 24.676006 0l125.855406 125.870756 125.854383-125.870756c6.820336-6.803963 17.856693-6.803963 24.676006 0l54.298673 54.298673c6.803963 6.804986 6.803963 17.856693 0 24.676006L590.973144 511.998977 716.82855 637.854383 716.82855 637.854383zM716.82855 637.854383" fill="#FF696A" p-id="3672"></path></svg>
+          <div class="mt-4 text-xl">Payment Failure</div>
+        </div>
+        <div class="mt-6 flex justify-center">
+          <!-- <router-link :to="'/account/orderDetails?id='+orderNo">
+            <button class="py-1.5 px-6 border border-gray-400 hover:bg-gray-200 rounded-full">View Order</button>
+          </router-link> -->
+          <router-link to="/account/orderList?type=2">
+            <button class="ml-5 py-1.5 px-6 border border-gray-400 hover:bg-gray-200 rounded-full">Order List</button>
+          </router-link>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import { 
+    paymentStatus
+  } from '@/api/dropshipping'
+  export default {
+    data(){
+      return {
+        orderNo: '',
+        status: 0,
+      }
+    },
+    mounted(){
+      // console.log(this.$route.query);
+      this.orderNo = this.$route.query.orderNumber
+      this.status = this.$route.query.status
+      this.getData()
+    },
+    methods:{
+      getData(){
+        if(this.$route.query.PayerID){
+          paymentStatus({
+            order_number: this.orderNo,
+            PayerID: this.$route.query.PayerID,
+            status: this.status,
+          }).then((res)=>{
+            if(res.code == 0){
+              this.status = res.data.status
+            }
+          })
+        }else{
+          paymentStatus({
+            order_number: this.orderNo,
+            status: this.status,
+          }).then((res)=>{
+            if(res.code == 0){
+              this.status = res.data.status
+            }
+          })
+        }
+      }
+    }
+  }
+</script>

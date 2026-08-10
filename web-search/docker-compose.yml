@@ -1,0 +1,150 @@
+name: codropshipping-1-0
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NUXT_PUBLIC_BASE_URL: /api
+        NUXT_PUBLIC_ORDER_URL: /admin/order
+        NUXT_PUBLIC_LOGIN_URL: /admin/login
+        NUXT_PUBLIC_WSS_URL: wss://chat.co-logistics.cn/wss
+        NUXT_PUBLIC_MALL_BASE_URL: /mall-api
+        NUXT_PUBLIC_SEARCH_BASE_URL: /search-api
+        NUXT_PUBLIC_NEW_USER_SHIPPING_COUPON_ENABLED: "false"
+    image: ${COD_WEB_IMAGE:-codropshipping/web}:${COD_RELEASE_TAG:-local}
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      NITRO_HOST: 0.0.0.0
+      NITRO_PORT: 3000
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 20s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+    restart: unless-stopped
+    networks: [app_internal]
+
+  member-center:
+    build:
+      context: ../member-center
+      dockerfile: Dockerfile
+    image: ${COD_MEMBER_IMAGE:-codropshipping/member-center}:${COD_RELEASE_TAG:-local}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 20s
+      timeout: 5s
+      start_period: 15s
+      retries: 5
+    restart: unless-stopped
+    networks: [app_internal]
+
+  listing-api:
+    build:
+      context: ../listing-backend
+      dockerfile: Dockerfile
+    image: ${COD_LISTING_IMAGE:-codropshipping/listing-api}:${COD_RELEASE_TAG:-local}
+    environment:
+      NODE_ENV: production
+      PORT: 8789
+      LISTING_DB_PATH: /app/data/listings.sqlite
+      COD_API_BASE_URL: ${COD_API_BASE_URL:-https://codropshipping.com/api}
+      COD_IDENTITY_PATH: ${COD_IDENTITY_PATH:-/customer/api/user/home/info}
+      QWEN_API_KEY: ${QWEN_API_KEY:?Set QWEN_API_KEY in the server environment}
+      QWEN_BASE_URL: ${QWEN_BASE_URL:?Set QWEN_BASE_URL in the server environment}
+      QWEN_NATIVE_BASE_URL: ${QWEN_NATIVE_BASE_URL:-}
+      QWEN_TEXT_MODEL: ${QWEN_TEXT_MODEL:-qwen3.7-plus}
+      QWEN_IMAGE_MODEL: ${QWEN_IMAGE_MODEL:-qwen-image-2.0-pro}
+      LISTING_ALLOWED_ORIGINS: ${LISTING_ALLOWED_ORIGINS:?Set LISTING_ALLOWED_ORIGINS to the public HTTPS origin}
+      PUBLIC_TRANSLATION_RATE_LIMIT_PER_MINUTE: ${PUBLIC_TRANSLATION_RATE_LIMIT_PER_MINUTE:-30}
+    volumes:
+      - listing_data:/app/data
+      - listing_backups:/app/backups
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8789/health"]
+      interval: 20s
+      timeout: 5s
+      start_period: 15s
+      retries: 5
+    mem_limit: 768m
+    cpus: 1.0
+    restart: unless-stopped
+    networks: [app_internal]
+
+  search-api:
+    build:
+      context: ./search-backend
+      dockerfile: Dockerfile
+    image: ${COD_SEARCH_IMAGE:-codropshipping/search-api}:${COD_RELEASE_TAG:-local}
+    environment:
+      PORT: 8788
+      DB_HOST: ${SEARCH_DB_HOST:-cargosoon-production-mysql-1}
+      DB_PORT: ${SEARCH_DB_PORT:-3306}
+      DB_NAME: ${SEARCH_DB_NAME:-cargosoon}
+      DB_USER: ${SEARCH_DB_USER:-product_search}
+      DB_PASSWORD: ${SEARCH_DB_PASSWORD:?Set SEARCH_DB_PASSWORD in the server environment}
+      UPSTREAM_API_BASE: ${SEARCH_UPSTREAM_API_BASE:-https://codropshipping.com/api}
+      SEARCH_ADMIN_TOKEN: ${SEARCH_ADMIN_TOKEN:?Set SEARCH_ADMIN_TOKEN in the server environment}
+      INDEX_CONCURRENCY: ${SEARCH_INDEX_CONCURRENCY:-2}
+      MAX_ACTIVE_QUERY_JOBS: ${SEARCH_MAX_ACTIVE_QUERY_JOBS:-1}
+      INDEX_PAGE_SIZE: ${SEARCH_INDEX_PAGE_SIZE:-50}
+      MAX_INDEX_PRODUCTS: ${SEARCH_MAX_INDEX_PRODUCTS:-2000}
+      DETAIL_INDEX_ENABLED: ${SEARCH_DETAIL_INDEX_ENABLED:-true}
+      DETAIL_INDEX_CONCURRENCY: ${SEARCH_DETAIL_INDEX_CONCURRENCY:-1}
+      MAX_ACTIVE_DETAIL_JOBS: ${SEARCH_MAX_ACTIVE_DETAIL_JOBS:-1}
+      DETAIL_INDEX_BATCH_SIZE: ${SEARCH_DETAIL_INDEX_BATCH_SIZE:-50}
+      DETAIL_INDEX_DELAY_MS: ${SEARCH_DETAIL_INDEX_DELAY_MS:-250}
+      DETAIL_FILTER_COVERAGE_THRESHOLD: ${SEARCH_DETAIL_FILTER_COVERAGE_THRESHOLD:-0.9}
+      LIVE_DETAIL_SAMPLE_SIZE: ${SEARCH_LIVE_DETAIL_SAMPLE_SIZE:-6}
+      LIVE_ATTRIBUTE_SCAN_SIZE: ${SEARCH_LIVE_ATTRIBUTE_SCAN_SIZE:-24}
+      LIVE_FILTER_SCAN_PAGES: ${SEARCH_LIVE_FILTER_SCAN_PAGES:-3}
+      LIVE_DETAIL_CONCURRENCY: ${SEARCH_LIVE_DETAIL_CONCURRENCY:-4}
+      PUBLIC_RATE_LIMIT_PER_MINUTE: ${SEARCH_PUBLIC_RATE_LIMIT_PER_MINUTE:-90}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8788/health"]
+      interval: 20s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+    mem_limit: 256m
+    cpus: 0.75
+    restart: unless-stopped
+    networks:
+      - app_internal
+      - logistics_db
+
+  caddy:
+    image: caddy:2.10-alpine
+    depends_on:
+      web: { condition: service_healthy }
+      member-center: { condition: service_healthy }
+      listing-api: { condition: service_healthy }
+      search-api: { condition: service_healthy }
+    environment:
+      COD_PUBLIC_HOST: ${COD_PUBLIC_HOST:?Set COD_PUBLIC_HOST to the production hostname}
+      COD_UPSTREAM_HOST: ${COD_UPSTREAM_HOST:-codropshipping.com}
+      COD_MALL_UPSTREAM_HOST: ${COD_MALL_UPSTREAM_HOST:-v2.cargosoon.online}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    networks: [app_internal]
+
+volumes:
+  caddy_data:
+  caddy_config:
+  listing_data:
+  listing_backups:
+
+networks:
+  app_internal:
+  logistics_db:
+    external: true
+    name: ${SEARCH_DB_NETWORK:-cargosoon-production_default}

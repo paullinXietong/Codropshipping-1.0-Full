@@ -1,0 +1,299 @@
+<template>
+  <div class="w-full h-full p-5 relative">
+    <div class="h-full overflow-y-auto pb-32 p-0.5">
+      <div class="mt-4 p-4 rounded-md shadow-default bg-white">
+        <div class="flex flex-wrap justify-between items-center">
+          <div class="flex flex-wrap items-center">
+            <div class="mr-6 py-3">Payment Methods</div>
+            <div class="flex flex-wrap items-center">
+              <div @click="payment_method = 2" class="mr-4 my-2 h-14 pl-5 pr-10 flex items-center border rounded text-sm cursor-pointer relative"
+                :class="[payment_method == 2 ? 'border-orange' : 'hover:border-orange']">
+                <svg t="1721272659258" class="icon mr-2" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4336" width="32" height="32"><path d="M511.999488 64.021106c-247.27171 0-447.724091 200.452381-447.724091 447.724091s200.452381 447.724091 447.724091 447.724091 447.724091-200.453405 447.724091-447.724091S759.271198 64.021106 511.999488 64.021106zM379.992989 256.420067c32.745798-27.629267 105.400538 30.699186 130.983193 28.652574 25.582655 2.046612 98.237395-56.281841 130.983193-28.652574s-39.653115 90.786703-39.653115 90.786703L419.629731 347.20677C419.629731 347.20677 347.24719 284.049335 379.992989 256.420067zM609.213577 379.952568c0 9.05012-7.322779 16.372899-16.372899 16.372899l-163.728992 0c-9.05012 0-16.372899-7.322779-16.372899-16.372899 0-9.05012 7.322779-16.372899 16.372899-16.372899l163.728992 0C601.890798 363.579669 609.213577 370.902448 609.213577 379.952568zM510.976182 772.550131c-126.60242 0-229.220588 11.416004-229.220588-95.67913 0-79.626525 56.761772-205.01428 137.874137-264.173658l182.676529 0c81.128739 59.159378 137.89051 184.547133 137.89051 264.173658C740.196771 783.967158 637.578602 772.550131 510.976182 772.550131z" fill="#5DB646" p-id="4337"></path><path d="M513.491469 532.48352c7.241938 0 12.892635 2.263553 16.987906 6.766101 4.094248 4.501524 6.158257 10.979052 6.158257 19.408025l45.447075 0c0-14.20656-4.839215-25.6461-14.482853-34.387181-9.643638-8.741082-22.942525-14.086833-39.860846-16.060791L527.741008 483.71991l-23.452131 0 0 24.032346c-17.698081 1.443885-31.707143 6.237051-42.061978 14.400988-10.354835 8.162914-15.532765 18.58938-15.532765 31.253818 0 13.967106 5.110391 24.708751 15.362896 32.218796 10.253528 7.514137 26.158776 14.233166 47.713698 20.156062 9.91379 3.731998 16.784268 7.465019 20.608364 11.222599 3.822049 3.75451 5.750981 8.860808 5.750981 15.313777 0 6.309706-1.860371 11.342326-5.649674 15.145955-3.789303 3.781116-9.644661 5.685489-17.630542 5.685489-8.593725 0-15.498996-2.143826-20.608364-6.381337-5.110391-4.239558-7.68196-11.342326-7.68196-21.288862L440.229908 625.479541l-0.338714 0.579191c-0.440022 16.156982 5.110391 28.414143 16.649192 36.771485 11.538801 8.354272 26.39516 13.242606 44.497447 14.688537l0 22.419616 23.61893 0 0-22.539342c17.700127-1.444908 31.641651-6.069229 41.826618-13.942547 10.18599-7.875365 15.294334-18.325367 15.294334-31.375591 0-13.896498-5.245468-24.77936-15.70161-32.679283-10.456143-7.897877-26.15673-14.56881-47.070039-20.034289-10.455119-4.164856-17.528212-8.04114-21.183462-11.606339-3.653203-3.563152-5.480828-8.308223-5.514597-14.20656 0-6.382361 1.658779-11.488659 4.940522-15.316847C500.532319 534.410406 505.946632 532.48352 513.491469 532.48352z" fill="#5DB646" p-id="4338"></path></svg>
+                <div>
+                  <div>Balance</div>
+                  <div class="mt-1.5 text-xs text-gray-400">Surplus: ${{balance}}</div>
+                </div>
+                <svg t="1721803649645" v-show="payment_method==2" class="icon absolute right-0.5 -top-2" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4254" width="24" height="24"><path d="M954.579419 511.957021c0 244.542552-198.078311 442.579931-442.579931 442.579931-244.370637 0-442.579931-198.037379-442.579931-442.579931 0-244.457618 198.209294-442.493973 442.579931-442.493973C756.501108 69.463048 954.579419 267.499403 954.579419 511.957021zM771.064802 370.019335l-68.807109-68.76413L415.357428 588.631308l-93.657077-93.963045-68.76413 68.63417 159.52832 159.442362 2.89391-2.982938 2.851954 2.982938L771.064802 370.019335z" fill="#E66A10" p-id="4255" data-spm-anchor-id="a313x.search_index.0.i0.3aaf3a81TzG9kQ" class="selected"></path></svg>
+              </div>
+              <!-- <div @click="payment_method = 1" class="mr-4 my-2 h-14 pl-5 pr-10 flex items-center border rounded text-sm cursor-pointer relative"
+                :class="[payment_method == 1 ? 'border-orange' : 'hover:border-orange']">
+                <svg t="1721272773551" class="icon mr-2" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5801" width="32" height="32"><path d="M1023.52 449.792c-0.832-19.04-1.664-38.112-2.496-57.12-3.84-24.192-2.432-48.864-6.72-72.128-2.016-12.864-4-25.792-5.984-38.656-7.04-32.224-13.856-62.752-24.96-90.528-20.576-51.52-52.32-94.88-96.544-122.752-94.752-59.68-235.68-68.992-390.72-68.576-15.456 0.256-30.944 0.48-46.4 0.736-9.472 0.352-18.944 0.672-28.448 1.024-6.72 0.32-13.472 0.64-20.224 0.992-18.208 1.408-36.448 2.816-54.624 4.256-9.888 1.184-19.808 2.304-29.696 3.488-22.176 4.128-44.128 6.464-64.864 11.712-95.648 24.32-151.648 60.192-195.872 136.16-21.984 37.728-31.232 84.16-41.92 133.472-2.24 16.64-4.48 33.248-6.72 49.888-1.568 19.776-3.168 39.584-4.736 59.36-0.256 6.72-0.48 13.472-0.768 20.224-0.576 18.208-1.152 36.448-1.728 54.624l0 55.616c0.32 17.12 0.672 34.272 1.024 51.36 0.384 11.904 0.832 23.808 1.248 35.68 0.48 8.064 1.024 16.128 1.504 24.192 3.456 21.664 2.624 43.744 6.464 64.64 5.92 31.936 9.824 62.816 18.72 91.296 24.096 77.344 60.384 129.088 124.256 166.624 28.512 16.768 62.624 27.52 98.56 36.672 13.312 2.656 26.592 5.312 39.904 8 16.64 2.24 33.28 4.48 49.888 6.72 21.28 1.664 42.592 3.328 63.872 4.992 7.232 0.256 14.496 0.48 21.696 0.736 15.328 0.416 30.624 0.832 45.92 1.248 7.648 0.096 15.296 0.192 22.944 0.256l31.904 0c20.8-0.32 41.6-0.64 62.4-1.024 5.984-0.256 12-0.48 17.952-0.736 17.792-1.152 35.616-2.336 53.408-3.52 15.232-1.664 30.432-3.328 45.664-4.992 34.208-6.336 66.848-10.912 97.056-20.448 65.536-20.672 114.208-53.728 149.696-104.288 27.328-38.88 41.376-88.288 53.408-142.688 2.592-16.864 5.184-33.76 7.712-50.624 1.856-20.096 3.648-40.256 5.504-60.384 0.32-7.232 0.672-14.464 1.024-21.696 0.64-16.448 1.312-32.928 2.016-49.408l0-13.248c0.096-7.648 0.16-15.296 0.256-22.976l0-54.88c-0.192-7.808-0.352-15.616-0.512-23.424zM841.888 576c-0.352 2.624-0.896 5.024-1.472 7.52-41.504 183.52-222.272 298.016-403.712 255.68-147.008-34.304-249.216-161.024-260.64-305.504-1.536-24.864 16.064-29.92 34.112-20.448 14.144 7.488 110.656 62.72 122.24 70.112s8.8 22.144-3.936 23.456c-12.704 1.312-52.544 4.832-52.544 4.832 31.584 73.568 95.552 131.616 178.304 151.008 138.72 32.64 280.576-55.424 312.32-196.576 0.64-2.88 0.608-2.432 1.76-8.64 1.12-6.24 2.976-15.712 15.2-11.488 12.192 4.256 41.952 12.928 51.264 15.392s8.256 6.112 7.072 14.688zM418.912 528.736c-10.432 0-18.912-8.192-18.912-18.304s8.448-18.304 18.912-18.304l67.84 0 0-20.544-68.288-67.328c-8.512-8.384-8.384-21.888 0.256-30.144s22.592-8.128 31.136 0.256l62.144 61.28 62.144-61.28c8.512-8.384 22.432-8.512 31.136-0.256s8.768 21.76 0.288 30.144l-68.288 67.328 0 20.544 67.84 0c10.432 0 18.88 8.192 18.88 18.304s-8.48 18.304-18.88 18.304l-67.84 0 0 26.432 67.84 0c10.432 0 18.88 8.192 18.88 18.304s-8.48 18.304-18.88 18.304l-67.84 0 0 39.744c0 13.504-11.328 24.48-25.28 24.48s-25.248-10.976-25.248-24.448l0-39.744-67.84 0c-10.432 0-18.912-8.192-18.912-18.304s8.448-18.304 18.912-18.304l67.84 0 0-26.432-67.84 0zM828.768 516.64c-22.624 0.192-133.6-63.52-137.12-66.848-8.416-7.968-5.28-17.92 3.36-19.296s56.864-7.072 56.864-7.072c-29.664-78.912-95.904-141.888-182.816-162.304-138.72-32.608-282.208 59.872-313.888 201.024-0.288 1.184-2.208 15.616-13.696 15.136-7.808-0.32-33.28-10.4-42.464-14.688-10.528-4.896-13.344-3.648-10.176-19.424 36.096-179.424 220.896-300.384 398.24-259.008 147.2 34.336 249.472 161.376 260.672 306.08 1.888 19.36-8.064 26.304-18.976 26.4z" fill="#86C2FF" p-id="5802"></path></svg>
+                <div>Transfer</div>
+                <svg t="1721803649645" v-show="payment_method==1" class="icon absolute right-0.5 -top-2" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4254" width="24" height="24"><path d="M954.579419 511.957021c0 244.542552-198.078311 442.579931-442.579931 442.579931-244.370637 0-442.579931-198.037379-442.579931-442.579931 0-244.457618 198.209294-442.493973 442.579931-442.493973C756.501108 69.463048 954.579419 267.499403 954.579419 511.957021zM771.064802 370.019335l-68.807109-68.76413L415.357428 588.631308l-93.657077-93.963045-68.76413 68.63417 159.52832 159.442362 2.89391-2.982938 2.851954 2.982938L771.064802 370.019335z" fill="#E66A10" p-id="4255" data-spm-anchor-id="a313x.search_index.0.i0.3aaf3a81TzG9kQ" class="selected"></path></svg>
+              </div> -->
+              <div @click="payment_method = 3" class="mr-4 my-2 h-14 pl-5 pr-10 flex items-center border rounded text-sm cursor-pointer relative"
+                :class="[payment_method == 3 ? 'border-orange' : 'hover:border-orange']">
+                <svg t="1722217700784" class="icon mr-2" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4343" width="32" height="32"><path d="M829.64898 805.093878H194.35102c-43.885714 0-79.412245-35.526531-79.412244-79.412245V298.840816C114.938776 254.955102 150.465306 219.428571 194.35102 219.428571h635.29796c43.885714 0 79.412245 35.526531 79.412244 79.412245v426.840817c0 43.363265-35.526531 79.412245-79.412244 79.412245z" fill="#F2CB51" p-id="4344"></path><path d="M114.938776 347.95102h794.122448v89.338776H114.938776z" fill="#DBAD2C" p-id="4345"></path><path d="M234.057143 699.559184c-10.971429 0-19.853061-8.881633-19.853061-19.853062v-148.897959c0-10.971429 8.881633-19.853061 19.853061-19.853061 10.971429 0 19.853061 8.881633 19.853061 19.853061v148.897959c0 10.971429-8.881633 19.853061-19.853061 19.853062zM333.322449 699.559184c-10.971429 0-19.853061-8.881633-19.853061-19.853062v-148.897959c0-10.971429 8.881633-19.853061 19.853061-19.853061 10.971429 0 19.853061 8.881633 19.853061 19.853061v148.897959c0 10.971429-8.881633 19.853061-19.853061 19.853062zM432.587755 699.559184c-10.971429 0-19.853061-8.881633-19.853061-19.853062v-148.897959c0-10.971429 8.881633-19.853061 19.853061-19.853061 10.971429 0 19.853061 8.881633 19.853061 19.853061v148.897959c0 10.971429-8.881633 19.853061-19.853061 19.853062z" fill="#E5404F" p-id="4346"></path></svg>
+                <div>Credit card</div>
+                <svg t="1721803649645" v-show="payment_method==3" class="icon absolute right-0.5 -top-2" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4254" width="24" height="24"><path d="M954.579419 511.957021c0 244.542552-198.078311 442.579931-442.579931 442.579931-244.370637 0-442.579931-198.037379-442.579931-442.579931 0-244.457618 198.209294-442.493973 442.579931-442.493973C756.501108 69.463048 954.579419 267.499403 954.579419 511.957021zM771.064802 370.019335l-68.807109-68.76413L415.357428 588.631308l-93.657077-93.963045-68.76413 68.63417 159.52832 159.442362 2.89391-2.982938 2.851954 2.982938L771.064802 370.019335z" fill="#E66A10" p-id="4255" data-spm-anchor-id="a313x.search_index.0.i0.3aaf3a81TzG9kQ" class="selected"></path></svg>
+              </div>
+              <div @click="payment_method = 4" class="mr-4 my-2 h-14 pl-5 pr-10 flex items-center border rounded text-sm cursor-pointer relative"
+                :class="[payment_method == 4 ? 'border-orange' : 'hover:border-orange']">
+                <svg t="1725355060896" class="icon mr-2" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12256" width="24" height="24"><path d="M841.813333 253.269333c-0.938667 5.888-2.005333 11.946667-3.2 18.176-40.576 209.749333-179.498667 282.24-356.864 282.24H391.424a43.946667 43.946667 0 0 0-43.349333 37.376l-46.250667 295.210667-13.098667 83.626667a23.338667 23.338667 0 0 0 22.784 26.88h160.213334a38.613333 38.613333 0 0 0 38.058666-32.682667l1.578667-8.192 30.165333-192.64 1.962667-10.538667a38.613333 38.613333 0 0 1 38.058667-32.768h23.936c155.221333 0 276.736-63.445333 312.234666-246.954666 14.848-76.672 7.168-140.714667-32.085333-185.728a153.301333 153.301333 0 0 0-43.861333-34.005334z" fill="#179BD7" p-id="12257"></path><path d="M799.317333 236.202667a318.464 318.464 0 0 0-39.509333-8.789334 498.474667 498.474667 0 0 0-79.616-5.845333h-241.28a38.528 38.528 0 0 0-38.058667 32.768L349.525333 581.546667l-1.450666 9.514666a43.946667 43.946667 0 0 1 43.349333-37.376h90.325333c177.365333 0 316.288-72.533333 356.864-282.24 1.237333-6.229333 2.261333-12.288 3.157334-18.176a215.68 215.68 0 0 0-42.453334-17.066666z" fill="#222D65" p-id="12258"></path><path d="M400.853333 254.293333a38.442667 38.442667 0 0 1 38.058667-32.725333h241.28c28.586667 0 55.296 1.877333 79.616 5.845333 16.512 2.602667 32.768 6.528 48.64 11.690667 11.946667 3.968 23.082667 8.704 33.365333 14.165333 12.074667-77.525333-0.085333-130.304-41.770666-178.133333C754.133333 22.528 671.274667 0 565.248 0H257.365333c-21.632 0-40.106667 15.872-43.477333 37.418667L85.674667 855.466667a26.752 26.752 0 0 0 5.973333 21.461333c5.034667 5.888 12.373333 9.301333 20.096 9.344h190.08l47.701333-304.725333 51.328-327.253334z" fill="#253B80" p-id="12259"></path></svg>
+                <div>Paypal</div>
+                <svg t="1721803649645" v-show="payment_method==4" class="icon absolute right-0.5 -top-2" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4254" width="24" height="24"><path d="M954.579419 511.957021c0 244.542552-198.078311 442.579931-442.579931 442.579931-244.370637 0-442.579931-198.037379-442.579931-442.579931 0-244.457618 198.209294-442.493973 442.579931-442.493973C756.501108 69.463048 954.579419 267.499403 954.579419 511.957021zM771.064802 370.019335l-68.807109-68.76413L415.357428 588.631308l-93.657077-93.963045-68.76413 68.63417 159.52832 159.442362 2.89391-2.982938 2.851954 2.982938L771.064802 370.019335z" fill="#E66A10" p-id="4255" data-spm-anchor-id="a313x.search_index.0.i0.3aaf3a81TzG9kQ" class="selected"></path></svg>
+              </div>
+              <!-- <stripe-element-card
+                class="w-full sm:w-96"
+                v-if="payment_method == 3"
+                style="margin: 16px 0;"
+                ref="elementRef"
+                :pk="publishableKey"
+                @token="tokenCreated"
+              /> -->
+            </div>
+          </div>
+          <div class="py-3 flex items-center">
+            <div>Amounts Due</div>
+            <div class="ml-3 text-xl font-bold" style="color: #d10000;">$ {{cost}}</div>
+          </div>
+        </div>
+        <div class="mt-5 py-3 border-t border-gray-300 dark:border-darkLine">
+          <!-- <div class="text-base">Co-logistics Bank information</div>
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <div class="flex flex-col sm:flex-row col-span-2 lg:col-span-1">
+              <div class="font-semibold w-56 flex-shrink-0">Beneficiary Name:</div>
+              <div>Cooperate Logistics Co., Ltd</div>
+            </div>
+            <div class="flex flex-col sm:flex-row col-span-2 lg:col-span-1">
+              <div class="font-semibold w-56 flex-shrink-0">Beneficiary Address:</div>
+              <div>B701, Bantian International Centre, Huanchengnan road, Longang district, Shenzhen</div>
+            </div>
+            <div class="flex flex-col sm:flex-row col-span-2 lg:col-span-1">
+              <div class="font-semibold w-56 flex-shrink-0">Beneficiary Account No.:</div>
+              <div>1505 7566 5400 69</div>
+            </div>
+            <div class="flex flex-col sm:flex-row col-span-2 lg:col-span-1">
+              <div class="font-semibold w-56 flex-shrink-0">Beneficiary Bank Name:</div>
+              <div>Ping An Bank</div>
+            </div>
+            <div class="flex flex-col sm:flex-row col-span-2 lg:col-span-1">
+              <div class="font-semibold w-56 flex-shrink-0">Beneficiary Bank Address:</div>
+              <div>Ping An Bank Building NO. 1099 Shennan Road C. Shenzhen, P.R.China</div>
+            </div>
+            <div class="flex flex-col sm:flex-row col-span-2 lg:col-span-1">
+              <div class="font-semibold w-56 flex-shrink-0">Beneficiary Bank SWIFT CODE:</div>
+              <div>SZDBCNBS</div>
+            </div>
+            <div v-show="payment_method == 1" class="col-span-1 mt-6">
+              <div>Submit Transfer Slip</div>
+              <input type="file"
+                style="display: none;"
+                accept="application/pdf,image/jpeg,image/png,image/jpg"
+                ref="iptFileRef"
+                @change="uploadFiles" />
+              <div v-show="!files.name">
+                <div @click="chooseFile"
+                  class="w-28 h-28 bg-gray-200 hover:bg-gray-300 rounded-md border border-dashed border-gray-400 flex flex-col justify-center items-center cursor-pointer">
+                  <svg t="1672105928501" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2693" width="28" height="28"><path d="M524.8 64c4.693333 0 8.533333 3.84 8.533333 8.533333V490.666667h418.133334c4.693333 0 8.533333 3.84 8.533333 8.533333v46.933333a8.533333 8.533333 0 0 1-8.533333 8.533334H533.333333v418.133333a8.533333 8.533333 0 0 1-8.533333 8.533333h-46.933333a8.533333 8.533333 0 0 1-8.533334-8.533333V554.666667H51.2a8.533333 8.533333 0 0 1-8.533333-8.533334v-46.933333c0-4.693333 3.84-8.533333 8.533333-8.533333H469.333333V72.533333c0-4.693333 3.84-8.533333 8.533334-8.533333h46.933333z" fill="#7a7a7a" p-id="2694"></path></svg>
+                  <div class="mt-2">Upload</div>
+                </div>
+                <div>Acceptable file types:jpg,jpeg,png,pdf</div>
+              </div>
+              <div v-show="files.name" class="flex items-center">
+                <svg t="1670585288869" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8034" width="16" height="16"><path d="M886.7 247.6L713.4 73.4c-6-6-14.2-9.4-22.7-9.4H192c-35.3 0-64 28.7-64 64v768c0 35.3 28.7 64 64 64h640c35.3 0 64-28.7 64-64V270.2c0-8.5-3.3-16.6-9.3-22.6zM832 864c0 17.7-14.3 32-32 32H224c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h384v160c0 35.3 28.7 64 64 64h160v512zM704 288c-17.7 0-32-14.3-32-32V128l160 160H704z" p-id="8035" fill="#7a7a7a"></path><path d="M671 672H287c-17.7 0-32 14.3-32 32s14.3 32 32 32h384c17.7 0 32-14.3 32-32s-14.3-32-32-32zM287 480c-17.7 0-32 14.3-32 32s14.3 32 32 32h384c17.7 0 32-14.3 32-32s-14.3-32-32-32H287zM287 352h192c17.7 0 32-14.3 32-32s-14.3-32-32-32H287c-17.7 0-32 14.3-32 32s14.3 32 32 32z" p-id="8036" fill="#7a7a7a"></path></svg>
+                <div style="margin: 0 20px 0 5px;font-size: 16px;">{{ files.name }}</div>
+                <svg @click="clearFile" style="cursor: pointer;" t="1670585138725" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4532" width="18" height="18"><path d="M806.4 263.2l-45.6-45.6L512 467.2 263.2 217.6l-45.6 45.6L467.2 512 217.6 760.8l45.6 45.6L512 557.6l248.8 248.8 45.6-45.6L557.6 512z" p-id="4533" fill="#7a7a7a"></path></svg>
+              </div>
+            </div>
+          </div> -->
+          <div class="mt-8 flex justify-center">
+            <button @click="backList" class="mr-5 h-12 w-48 hover:bg-gray-200 border border-gray-300 rounded text-base">Cancel</button>
+            <button class="btn" @click="submitPayment" v-show="!showLoading">Payment Now</button>
+            <button class="btn" v-show="showLoading">
+              <svg class="animate-spin mx-auto my-0.5 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"></circle>
+                <path class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div>
+
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import { 
+    reqWallet
+  } from '@/api/wallet'
+  import { 
+    orderPay
+  } from '@/api/dropshipping'
+  import {
+    ImgUpload
+  } from '@/api/order'
+  import { StripeElementCard } from '@vue-stripe/vue-stripe';
+  export default {
+    components: {
+      StripeElementCard,
+    },
+    data() {
+      // this.publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+      return {
+        files: {},
+        payment_method: 3,
+        orderNo: '',
+        cost: '',
+        balance: 0,
+        showLoading: false,
+        token: null,
+        publishableKey: 'pk_test_51LQRgDEimIXJbm5dOW5fZVbet6gEnPZQlg6OWNDvfNxjZO6fOTw43x41w0NV22ZviUlZL50nEZT8gpRkKbCCJOX5009MDaMQKl',
+        type: 1,
+      }
+    },
+    mounted(){
+      if(this.$route.params.id){
+        this.orderNo = this.$route.params.id
+        this.cost = this.$route.params.cost
+        this.type = this.$route.params.type
+        reqWallet().then((res)=>{
+          this.balance = res.data.balance
+        })
+      }else{
+        this.$router.push({
+          path: '/account/orderList?type=2',
+        })
+      }
+    },
+    methods:{
+      chooseFile(){
+        this.$refs.iptFileRef.click()
+      },
+      uploadFiles(e){
+        this.files = e.target.files[0]
+      },
+      clearFile(){
+        this.$refs.iptFileRef.value = ''
+        this.files = {}
+      },
+      submitPayment(){
+        this.showLoading = true
+        if(this.payment_method == 2){
+          orderPay({
+            order_number: this.orderNo,
+            payment_method: 2,
+            client_type: 1,
+            type: this.type,
+          }).then((res)=>{
+            if(res.code == 0){
+              if(this.type == '1'){
+                this.$router.push({
+                  path: '/account/orderList?type=2',
+                })
+              }else{
+                this.$router.push({
+                  path: '/account/orderList?type=5',
+                })
+              }
+            }else{
+              this.$message({
+                message: res.msg,
+                offset: 70
+              });
+              this.showLoading = false
+            }
+          })
+        }else if(this.payment_method == 1){
+          this.showLoading = false
+          if(this.files.name){
+            let data = new FormData()
+            data.append('file', this.files);
+            ImgUpload(data).then((res)=>{
+              orderPay({
+                order_number: this.orderNo,
+                payment_method: 1,
+                file: res.data.file,
+                img_name: res.data.name,
+                client_type: 1,
+                type: this.type,
+              }).then((req)=>{
+                if(req.code == 0){
+                  if(this.type == '1'){
+                    this.$router.push({
+                      path: '/account/orderList?type=2',
+                    })
+                  }else{
+                    this.$router.push({
+                      path: '/account/orderList?type=5',
+                    })
+                  }
+                }else{
+                  this.$message({
+                    message: req.msg,
+                    offset: 70
+                  });
+                  this.showLoading = false
+                }
+              })
+            })
+          }else{
+            this.$message({
+              message: 'Please select a file',
+              offset: 70
+            });
+            this.showLoading = false
+          }
+        }else{
+          orderPay({
+            order_number: this.orderNo,
+            payment_method: this.payment_method,
+            client_type: 1,
+            type: this.type,
+          }).then((res)=>{
+            if(res.code == 0){
+              window.open(res.data.url, '_self')
+            }else{
+              this.$message({
+                message: res.msg,
+                offset: 70
+              });
+              this.showLoading = false
+            }
+          })
+          // this.submit()
+        }
+      },
+      submit () {
+        // this will trigger the process
+        this.$refs.elementRef.submit();
+      },
+      tokenCreated (token) {
+        console.log(token);
+        this.showLoading = false
+        // handle the token
+        // send it to your server
+      },
+      backList(){
+        if(this.type == '1'){
+          this.$router.push({
+            path: '/account/orderList?type=1',
+          })
+        }else{
+          this.$router.push({
+            path: '/account/orderList?type=4',
+          })
+        }
+      }
+    }
+  }
+</script>
+
+<style lang="postcss" scoped>
+  .btn{
+    @apply h-12 w-48 bg-black hover:bg-gray-500 text-white rounded text-base;
+  }
+</style>
