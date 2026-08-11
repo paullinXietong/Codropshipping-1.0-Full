@@ -139,6 +139,12 @@ const routes = [
         component: () => import("../views/workspace/Studio.vue"),
       },
       {
+        path: "/workspace/cart",
+        name: "cart",
+        meta: { title: "Sourcing Cart - CoDropshipping" },
+        component: () => import("../views/workspace/Cart.vue"),
+      },
+      {
         path: "/workspace/orders",
         name: "workspace-orders",
         meta: { title: "Orders - CoDropshipping" },
@@ -545,11 +551,7 @@ const routes = [
       },
       {
         path: "/account/cart",
-        name: "cart",
-        meta:{
-          title:'My Cart - CoDropshipping'
-        },
-        component: () => import("../views/account/Cart_new.vue"),
+        redirect: "/workspace/cart",
       },
       {
         path: "/order",
@@ -702,7 +704,7 @@ router.beforeEach((to,from,next)=>{
   let token = store.state.user.token
   if(!token || token=='undefined'){
     if(to.path.indexOf('/account')!=-1||to.path.indexOf('/main')!=-1||to.path.indexOf('/order')!=-1
-    ||to.path.indexOf('/warehouse')!=-1){
+    ||to.path.indexOf('/warehouse')!=-1||to.path.indexOf('/workspace')!=-1){
       // if(to.path == '/main/booking' || to.path == '/main/FCL'){
       if(to.path.indexOf('/account/cart')!=-1 || to.path.indexOf('/warehouse/InventoryStatistics')!=-1
       || to.path.indexOf('/warehouse/RentCalculation')!=-1 || to.path.indexOf('/main/issus')!=-1){

@@ -198,6 +198,7 @@
 import { ImgUpload } from '@/api/order'
 import {
   createListingDraft,
+  getAiProposal,
   getListingDraft,
   getListingChannels,
   publishListingDraft,
@@ -300,7 +301,6 @@ export default {
     async initialize() {
       this.loading = true
       this.error = ''
-      let prepareContentAi = false
       let prepareImageAi = false
       try {
         let response
@@ -330,14 +330,12 @@ export default {
         const channelData = this.responseData(channels, [])
         this.stores = Array.isArray(channelData) ? channelData : []
         if (!this.selectedStoreId && this.stores.length === 1) this.selectedStoreId = String(this.stores[0].id)
-        prepareContentAi = this.mode === 'ai' && !this.aiProposal
         prepareImageAi = this.mode === 'ai' && Boolean(this.aiReferenceImageUrl)
       } catch (error) {
         this.error = this.localizeError(error, 'listing.serviceUnavailable')
       } finally {
         this.loading = false
         this.$nextTick(() => {
-          if (prepareContentAi) this.generateAi({ apply: false })
           if (prepareImageAi) this.prepareAutomaticImage()
         })
       }
@@ -422,7 +420,9 @@ export default {
       try {
         if (this.saveState === 'unsaved') await this.saveDraft()
         const response = await requestAiProposal(this.draft.id)
-        const proposalResponse = this.responseData(response)
+        let proposalResponse = this.responseData(response)
+        if (proposalResponse.status === 'processing') proposalResponse = await this.waitForAiProposal(proposalResponse.id)
+        if (proposalResponse.status !== 'ready' || !proposalResponse.proposal) throw new Error(this.$t('listing.aiUnavailable'))
         this.aiProposal = proposalResponse.proposal
         this.aiProposalRevision = proposalResponse.inputRevision
         if (apply) this.applyAiProposal(this.aiProposal)
@@ -430,6 +430,17 @@ export default {
       } catch (error) {
         this.aiError = this.localizeError(error, 'listing.aiUnavailable')
       } finally { this.aiLoading = false }
+    },
+    async waitForAiProposal(proposalId) {
+      const deadline = Date.now() + 240000
+      while (Date.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 1800))
+        const response = await getAiProposal(this.draft.id, proposalId)
+        const proposal = this.responseData(response)
+        if (proposal.status === 'ready') return proposal
+        if (proposal.status === 'failed') throw new Error(this.$t('listing.aiUnavailable'))
+      }
+      throw new Error(this.$t('listing.aiUnavailable'))
     },
     applyAiProposal(proposal) {
       if (!proposal) return

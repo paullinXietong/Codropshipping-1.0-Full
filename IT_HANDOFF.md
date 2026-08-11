@@ -49,4 +49,4 @@ docker compose --env-file /etc/codropshipping/codropshipping-1.0.env \
 
 如果测试服务器已有 HTTPS 代理，应只把整个域名转发到 `COD_HTTP_PORT`，不得继续保留 `/admin` 的旧转发规则。
 
-最后由业务人员完成一次低风险真实闭环：登录 → 搜索/选品 → AI List → 审核文案、SEO、图片、变体、价格、库存和发货仓 → 发布 Shopify → Shopify 后台核对 → 创建测试订单 → 客户工作台核对订单与履约。
+最后由业务人员完成一次低风险真实闭环：登录 → 搜索/选品 → List to my store（默认 AI 辅助）→ 审核文案、SEO、图片、变体、价格、库存和发货仓 → 发布 Shopify → Shopify 后台核对 → 创建测试订单 → 客户工作台核对订单与履约。

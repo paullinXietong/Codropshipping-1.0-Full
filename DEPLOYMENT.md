@@ -52,7 +52,7 @@ docker compose --env-file /etc/codropshipping/codropshipping-1.0.env \
 ./scripts/smoke-test.sh https://你的生产域名
 ```
 
-再由业务人员完成一次真实但低风险的闭环：登录 → 选品 → AI List → 审核标题/描述/SEO/图片 → 发布 Shopify → 在 Shopify 和客户工作台核对商品 → 创建测试订单并核对订单同步。禁止在未审核内容时批量发布。
+再由业务人员完成一次真实但低风险的闭环：登录 → 选品 → List to my store（默认 AI 辅助）→ 审核标题/描述/SEO/图片 → 发布 Shopify → 在 Shopify 和客户工作台核对商品 → 创建测试订单并核对订单同步。禁止在未审核内容时批量发布。
 
 ## 4. 健康检查与日志
 

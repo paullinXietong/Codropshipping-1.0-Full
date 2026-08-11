@@ -6,7 +6,7 @@ The legacy customer center separates product selection, editing, channel connect
 
 ## What Changes
 
-- Add AI List and Manual List entry points on the real product detail page.
+- Simplify the real product detail page to one primary "List to my store" action with AI assistance by default, while keeping manual listing and procurement paths available as secondary actions.
 - Add durable, customer-owned listing drafts and explicit AI proposals.
 - Add a reviewable editor for content, media, variants, pricing, inventory, SEO, language, and destination store.
 - Publish only after explicit customer confirmation through the existing CoD Shopify integration.

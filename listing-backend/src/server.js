@@ -358,24 +358,34 @@ async function updateDraft(request, id, owner) {
   return normalizeDraft(getOwnedDraft(id, owner.ownerId))
 }
 
-async function createAiProposal(request, id, owner) {
-  const row = getOwnedDraft(id, owner.ownerId)
-  const aiUrl = process.env.AI_LISTING_API_URL
-  if (!hasQwenTextConfig() && !aiUrl) throw Object.assign(new Error('AI listing service is not configured'), { status: 503, code: 'AI_NOT_CONFIGURED' })
-  const proposalId = randomUUID()
-  const now = new Date().toISOString()
-  db.prepare(`INSERT INTO listing_ai_proposals (id, draft_id, owner_id, input_revision, target_language, status, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, 'processing', ?, ?)`)
-    .run(proposalId, id, owner.ownerId, row.revision, row.target_language, now, now)
-  event(id, owner.ownerId, 'ai.requested', { proposalId, revision: row.revision })
+function normalizeProposalRow(row) {
+  if (!row) return null
+  return {
+    id: row.id,
+    status: row.status,
+    inputRevision: row.input_revision,
+    targetLanguage: row.target_language,
+    proposal: parse(row.proposal, null),
+    errorCode: row.error_code,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  }
+}
 
+function proposalById(id, ownerId, proposalId) {
+  const row = db.prepare('SELECT * FROM listing_ai_proposals WHERE id = ? AND draft_id = ? AND owner_id = ?').get(proposalId, id, ownerId)
+  return normalizeProposalRow(row)
+}
+
+async function processAiProposal({ id, owner, row, proposalId }) {
   try {
     const input = {
-        targetLanguage: row.target_language,
-        source: parse(row.source_snapshot, {}),
-        merchantContent: parse(row.merchant_content, {}),
-        instructions: 'Return suggestions only. Do not publish, apply changes, or invent product claims.'
+      targetLanguage: row.target_language,
+      source: parse(row.source_snapshot, {}),
+      merchantContent: parse(row.merchant_content, {}),
+      instructions: 'Return suggestions only. Do not publish, apply changes, or invent product claims.'
     }
+    const aiUrl = process.env.AI_LISTING_API_URL
     let proposal
     if (hasQwenTextConfig()) {
       proposal = await createQwenListingProposal(input)
@@ -397,14 +407,30 @@ async function createAiProposal(request, id, owner) {
     db.prepare(`UPDATE listing_drafts SET status = 'ai_ready', updated_at = ? WHERE id = ? AND owner_id = ?`)
       .run(updated, id, owner.ownerId)
     event(id, owner.ownerId, 'ai.ready', { proposalId, revision: row.revision })
-    return { id: proposalId, status: 'ready', inputRevision: row.revision, targetLanguage: row.target_language, proposal }
   } catch (error) {
     const updated = new Date().toISOString()
     db.prepare(`UPDATE listing_ai_proposals SET status = 'failed', error_code = ?, updated_at = ? WHERE id = ?`)
       .run('AI_REQUEST_FAILED', updated, proposalId)
     event(id, owner.ownerId, 'ai.failed', { proposalId })
-    throw Object.assign(new Error(error.message || 'AI request failed'), { status: 502, code: 'AI_REQUEST_FAILED' })
+    console.error(`[listing-orchestrator] AI proposal ${proposalId}: ${error.message || 'AI request failed'}`)
   }
+}
+
+async function createAiProposal(request, id, owner) {
+  const row = getOwnedDraft(id, owner.ownerId)
+  const aiUrl = process.env.AI_LISTING_API_URL
+  if (!hasQwenTextConfig() && !aiUrl) throw Object.assign(new Error('AI listing service is not configured'), { status: 503, code: 'AI_NOT_CONFIGURED' })
+  const proposalId = randomUUID()
+  const now = new Date().toISOString()
+  db.prepare(`INSERT INTO listing_ai_proposals (id, draft_id, owner_id, input_revision, target_language, status, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, 'processing', ?, ?)`)
+    .run(proposalId, id, owner.ownerId, row.revision, row.target_language, now, now)
+  event(id, owner.ownerId, 'ai.requested', { proposalId, revision: row.revision })
+  // Model generation can legitimately outlive a reverse proxy's request
+  // timeout. Persist the job first, finish it in the background, and let the
+  // browser poll this durable status instead of holding one HTTP request open.
+  void processAiProposal({ id, owner, row, proposalId })
+  return { id: proposalId, status: 'processing', inputRevision: row.revision, targetLanguage: row.target_language, proposal: null }
 }
 
 async function createAiImageProposal(request, id, owner) {
@@ -485,17 +511,7 @@ async function createAiImageProposal(request, id, owner) {
 
 function latestProposal(id, ownerId) {
   const row = db.prepare('SELECT * FROM listing_ai_proposals WHERE draft_id = ? AND owner_id = ? ORDER BY created_at DESC LIMIT 1').get(id, ownerId)
-  if (!row) return null
-  return {
-    id: row.id,
-    status: row.status,
-    inputRevision: row.input_revision,
-    targetLanguage: row.target_language,
-    proposal: parse(row.proposal, null),
-    errorCode: row.error_code,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at
-  }
+  return normalizeProposalRow(row)
 }
 
 function latestImageProposals(id, ownerId) {
@@ -678,7 +694,13 @@ const server = createServer(async (request, response) => {
       } })
     }
     if (request.method === 'PATCH' && !action) return json(response, 200, { data: await updateDraft(request, id, owner) })
-    if (request.method === 'POST' && action === 'ai-proposals') return json(response, 201, { data: await createAiProposal(request, id, owner) })
+    if (request.method === 'GET' && action === 'ai-proposals') {
+      const proposalId = String(url.searchParams.get('proposalId') || '').trim()
+      const proposal = proposalId ? proposalById(id, owner.ownerId, proposalId) : latestProposal(id, owner.ownerId)
+      if (!proposal) return json(response, 404, { error: { code: 'AI_PROPOSAL_NOT_FOUND', message: 'AI proposal not found' } })
+      return json(response, 200, { data: proposal })
+    }
+    if (request.method === 'POST' && action === 'ai-proposals') return json(response, 202, { data: await createAiProposal(request, id, owner) })
     if (request.method === 'POST' && action === 'ai-images') return json(response, 201, { data: await createAiImageProposal(request, id, owner) })
     if (request.method === 'POST' && action === 'publish') return json(response, 200, { data: await publish(request, id, owner) })
     return json(response, 405, { error: { code: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' } })

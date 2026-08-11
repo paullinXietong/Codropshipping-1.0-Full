@@ -21,7 +21,7 @@
           <div v-if="supportOpen" class="workspace-popover sidebar-popover support-popover">
             <div class="popover-heading"><strong>{{ $t('support.title') }}</strong><span>{{ $t('support.copy') }}</span></div>
             <router-link :to="{ path: '/main/issus', query: { from: $route.fullPath } }" @click.native="closeAllMenus"><i class="el-icon-chat-line-square"></i><span><strong>{{ $t('support.feedback') }}</strong><small>{{ $t('support.feedbackCopy') }}</small></span></router-link>
-            <a href="https://codropshipping.com/contact" target="_blank" rel="noreferrer" @click="closeAllMenus"><i class="el-icon-service"></i><span><strong>{{ $t('support.contact') }}</strong><small>{{ $t('support.contactCopy') }}</small></span><i class="el-icon-top-right"></i></a>
+            <a :href="liveSupportUrl" target="_blank" rel="noopener noreferrer" @click="closeAllMenus"><i class="el-icon-service"></i><span><strong>{{ $t('support.contact') }}</strong><small>{{ $t('support.contactCopy') }}</small></span><i class="el-icon-top-right"></i></a>
           </div>
         </div>
 
@@ -66,7 +66,7 @@
                   </a>
                 </div>
                 <div v-if="orderResults.length" class="result-group">
-                  <div class="result-heading"><span>{{ $t('search.orders') }}</span><router-link :to="{ path: '/account/storeOrder', query: { q: searchQuery } }" @click.native="closeAllMenus">{{ $t('search.viewAll') }}</router-link></div>
+                  <div class="result-heading"><span>{{ $t('search.orders') }}</span><router-link :to="{ path: '/workspace/orders', query: { q: searchQuery } }" @click.native="closeAllMenus">{{ $t('search.viewAll') }}</router-link></div>
                   <router-link v-for="order in orderResults" :key="`order-${order.id || order.order_number}`" :to="orderLink(order)" class="search-result" @click.native="closeAllMenus">
                     <span class="result-icon"><i class="el-icon-document"></i></span><span><strong>{{ orderName(order) }}</strong><small>{{ order.store_name || 'Shopify' }}</small></span><i class="el-icon-arrow-right"></i>
                   </router-link>
@@ -136,6 +136,7 @@ export default {
     account() { try { return JSON.parse(window.localStorage.getItem('userInfo') || '{}') } catch { return {} } },
     accountName() { return this.account.user_name || this.account.name || this.account.email || this.$t('header.accountFallback') },
     initials() { return String(this.accountName).split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase() || 'CO' },
+    liveSupportUrl() { return `${this.storefrontUrl}/?support=chat` },
     unreadNotifications() { return this.notifications.filter((item) => Number(item.is_read) === 0).length },
   },
   mounted() { document.addEventListener('click', this.handleDocumentClick); this.loadNotifications() },
@@ -161,7 +162,7 @@ export default {
     },
     productHref(product) { return `/productDetail?id=${encodeURIComponent(product.goods_id || product.id)}&source=${encodeURIComponent(product.source || 1)}` },
     orderName(order) { return order.order_number || order.shopify_order_number || order.store_order_number || this.$t('search.orderFallback') },
-    orderLink(order) { return { path: '/account/storeOrderDetails', query: { id: order.id } } },
+    orderLink(order) { return { path: '/workspace/orders', query: { q: this.orderName(order) } } },
     async loadNotifications() {
       this.notificationLoading = true; this.notificationError = ''
       try { const response = await getNotice(); const data = response.data || {}; this.notifications = Array.isArray(data) ? data : Array.isArray(data.list) ? data.list : data.msg ? [data] : [] }

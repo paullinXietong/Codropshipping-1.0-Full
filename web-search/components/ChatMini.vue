@@ -541,6 +541,10 @@ async function fetchRate(){
 
 onMounted(async ()=>{
   shouldReconnect = true
+  if (new URLSearchParams(window.location.search).get('support') === 'chat') {
+    chatOpen.value = true
+    chatNum.value = 0
+  }
   fetchRate()
   const ui = JSON.parse(localStorage.getItem('userInfo') || 'null')
   if(ui){ userInfo.value = ui; token.value = localStorage.getItem('TOKEN') || '' }

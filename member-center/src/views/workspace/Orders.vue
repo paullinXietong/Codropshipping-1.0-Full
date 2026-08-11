@@ -232,7 +232,7 @@ export default {
     totalPages() { return Math.max(1, Math.ceil(this.total / this.pageSize)) },
     nextActionLabel() { return this.selectedStatus === 1 ? this.$t('orders.reviewOrders') : this.$t('orders.manageQueue') },
   },
-  mounted() { this.initialize() },
+  mounted() { this.query = String(this.$route.query.q || ''); this.initialize() },
   methods: {
     async initialize() {
       this.loading = true

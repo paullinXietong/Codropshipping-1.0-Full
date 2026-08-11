@@ -7,9 +7,12 @@
 
 ## 2. Storefront handoff
 
-- [x] 2.1 Add AI List and Manual List actions to the real product detail page.
+- [x] 2.1 Add the AI-assisted listing and manual listing paths to the real product detail page.
 - [x] 2.2 Preserve product identity, source, region, mode, and language through login.
 - [x] 2.3 Add the global language selector with English fallback.
+- [x] 2.4 Replace the crowded product action row with one AI-first listing action, one cart action, and quiet manual/order alternatives across every product detail.
+- [x] 2.5 Route every storefront order and cart shortcut into the new workspace, and keep background translation from blocking the header.
+- [x] 2.6 Route workspace live support into the existing assigned-manager WebSocket conversation while retaining product feedback as a separate tracked ticket flow.
 
 ## 3. Customer workspace
 

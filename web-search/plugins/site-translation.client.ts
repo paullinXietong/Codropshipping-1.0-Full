@@ -1,11 +1,14 @@
 import { defineNuxtPlugin } from '#app'
 import { FAST_SITE_TRANSLATIONS } from '~/i18n/site-fast-translations'
 
-type TranslationTarget = { node: Text | Element, attribute?: string, source: string }
+type TranslationTarget = { node: Text | Element, attribute?: string, source: string, priority?: boolean }
 
 const SUPPORTED = new Set(['en-US', 'zh-CN', 'es-ES', 'fr-FR', 'de-DE', 'pt-BR', 'ar-SA', 'ja-JP', 'ko-KR', 'ru-RU'])
 const SKIP_SELECTOR = 'script,style,noscript,code,pre,textarea,.global-language,[data-no-translate]'
 const TRANSLATABLE_ATTRIBUTE = ['placeholder', 'title', 'aria-label', 'alt']
+const TRANSLATION_BATCH_SIZE = 10
+const PRIORITY_TRANSLATION_BATCH_SIZE = 4
+const TRANSLATION_REQUEST_TIMEOUT_MS = 75000
 
 function meaningful(value: string) {
   const text = value.trim()
@@ -33,6 +36,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   let translating = false
   let rerunRequested = false
   let activeController: AbortController | undefined
+  let activeRunSources = new Set<string>()
 
   function observePage() {
     observer?.observe(document.body, {
@@ -89,7 +93,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       const parent = node.parentElement
       if (parent && !parent.closest(SKIP_SELECTOR)) {
         const source = originalForText(node).trim()
-        if (meaningful(source)) targets.push({ node, source })
+        if (meaningful(source)) targets.push({ node, source, priority: Boolean(parent.closest('[data-translate-priority]')) })
       }
       node = walker.nextNode() as Text | null
     }
@@ -99,7 +103,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       for (const attribute of TRANSLATABLE_ATTRIBUTE) {
         if (!element.hasAttribute(attribute)) continue
         const source = originalForAttribute(element, attribute).trim()
-        if (meaningful(source)) targets.push({ node: element, attribute, source })
+        if (meaningful(source)) targets.push({ node: element, attribute, source, priority: Boolean(element.closest('[data-translate-priority]')) })
       }
     }
     return targets
@@ -107,17 +111,29 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   async function requestTranslations(texts: string[], targetLocale: string, signal: AbortSignal) {
     const token = window.localStorage.getItem('TOKEN') || ''
-    const response = await fetch('/listing-api/v1/site-translations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', token },
-      body: JSON.stringify({ targetLanguage: targetLocale, texts }),
-      signal,
-    })
-    const payload = await response.json().catch(() => ({}))
-    if (!response.ok) throw new Error(payload?.error?.message || 'Page translation failed')
-    const translations = payload?.data?.translations
-    if (!Array.isArray(translations) || translations.length !== texts.length) throw new Error('Page translation returned incomplete content')
-    return translations.map((value: unknown) => String(value || ''))
+    const requestController = new AbortController()
+    const abortRequest = () => requestController.abort()
+    signal.addEventListener('abort', abortRequest, { once: true })
+    // Dynamic product titles and long variant names can take longer than UI
+    // labels. The translation runs without blocking page interaction, so keep
+    // the request alive long enough to receive and cache a complete batch.
+    const timeout = window.setTimeout(abortRequest, TRANSLATION_REQUEST_TIMEOUT_MS)
+    try {
+      const response = await fetch('/listing-api/v1/site-translations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', token },
+        body: JSON.stringify({ targetLanguage: targetLocale, texts }),
+        signal: requestController.signal,
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload?.error?.message || 'Page translation failed')
+      const translations = payload?.data?.translations
+      if (!Array.isArray(translations) || translations.length !== texts.length) throw new Error('Page translation returned incomplete content')
+      return translations.map((value: unknown) => String(value || ''))
+    } finally {
+      window.clearTimeout(timeout)
+      signal.removeEventListener('abort', abortRequest)
+    }
   }
 
   function applyTargets(targets: TranslationTarget[], targetLocale: string, allowedSources?: Set<string>) {
@@ -140,6 +156,27 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   async function translate(root: ParentNode = document.body) {
     if (translating) {
+      // Vue can mount action buttons while an earlier model request is still
+      // running. Apply known UI translations immediately so late-rendered
+      // controls never wait behind supplier descriptions or variant names.
+      const pendingTargets = collect(root)
+      const pendingFast = FAST_SITE_TRANSLATIONS[locale] || {}
+      const pendingSources = new Set<string>()
+      for (const target of pendingTargets) {
+        if (!pendingFast[target.source]) continue
+        cache.set(`${locale}\u0000${target.source}`, pendingFast[target.source])
+        pendingSources.add(target.source)
+      }
+      if (pendingSources.size) applyTargets(pendingTargets, locale, pendingSources)
+      // Product data arrives after the initial shell. Do not leave its title,
+      // variants and availability waiting behind a long footer/model batch.
+      // A priority request already in flight is allowed to finish so repeated
+      // Vue mutations cannot continually restart the same work.
+      const hasNewUntranslatedPriority = pendingTargets.some((target) => target.priority
+        && !cache.has(`${locale}\u0000${target.source}`)
+        && !pendingFast[target.source]
+        && !activeRunSources.has(target.source))
+      if (hasNewUntranslatedPriority) activeController?.abort()
       rerunRequested = true
       return
     }
@@ -155,7 +192,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     const targets = targetLocale === 'en-US'
       ? collectedTargets.filter((target) => needsEnglishTranslation(target.source))
       : collectedTargets
-    const sources = [...new Set(targets.map((target) => target.source))]
+    const sources = [...new Set([...targets]
+      .sort((left, right) => Number(Boolean(right.priority)) - Number(Boolean(left.priority)))
+      .map((target) => target.source))]
+    activeRunSources = new Set(sources)
     const fast = FAST_SITE_TRANSLATIONS[targetLocale] || {}
     for (const source of sources) {
       if (fast[source]) cache.set(`${targetLocale}\u0000${source}`, fast[source])
@@ -174,8 +214,17 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
     emitState('translating')
     try {
-      for (let start = 0; start < missing.length; start += 30) {
-        const batch = missing.slice(start, start + 30)
+      const prioritySources = new Set(targets.filter((target) => target.priority).map((target) => target.source))
+      const priorityMissing = missing.filter((source) => prioritySources.has(source))
+      const standardMissing = missing.filter((source) => !prioritySources.has(source))
+      const batches: string[][] = []
+      for (let start = 0; start < priorityMissing.length; start += PRIORITY_TRANSLATION_BATCH_SIZE) {
+        batches.push(priorityMissing.slice(start, start + PRIORITY_TRANSLATION_BATCH_SIZE))
+      }
+      for (let start = 0; start < standardMissing.length; start += TRANSLATION_BATCH_SIZE) {
+        batches.push(standardMissing.slice(start, start + TRANSLATION_BATCH_SIZE))
+      }
+      for (const batch of batches) {
         const translations = await requestTranslations(batch, targetLocale, controller.signal)
         if (run !== generation || controller.signal.aborted) return
         batch.forEach((source, index) => cache.set(`${targetLocale}\u0000${source}`, translations[index] || source))
@@ -195,6 +244,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       }
     } finally {
       if (activeController === controller) activeController = undefined
+      activeRunSources = new Set()
       translating = false
       if (rerunRequested) {
         rerunRequested = false

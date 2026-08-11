@@ -30,9 +30,9 @@
             </div>
           </div>
 
-          <div class="sticky top-4 h-fit max-h-[100vh] shadow p-3 flex-1">
+          <div class="sticky top-4 h-fit max-h-[100vh] shadow p-3 flex-1" data-translate-priority>
             <div class=" mb-2">
-              <div id="spu" class="text-base text-gray-950 font-bold">{{ shopDetail.subjectTrans }}</div>
+              <div id="spu" class="text-base text-gray-950 font-bold" data-no-translate>{{ shopDetail.subjectTrans }}</div>
               <div class="flex-shrink-0">
                 <div v-if="shopSource===4" class="flex items-center"><img src="@/assets/images/westmonth.png" class="w-4 h-4 inline-block mr-2" alt=""> WestMonth</div>
                 <a v-if="shopSource===5" :href="aliLink" target="_blank" class="border text-sm cursor-pointer px-2 py-1 rounded ">
@@ -107,7 +107,7 @@
                         <button class="w-6 h-6 text-center bg-gray-100" @click="addNumPrice()">+</button>
                       </div>
                     </div>
-                    <div class="text-xs">Available: {{ amountOnSale }}</div>
+                    <div class="text-xs"><span>Available:</span> {{ amountOnSale }}</div>
                   </div>
                 </div>
               </div>
@@ -146,7 +146,7 @@
                       <button class="w-6 h-6 text-center bg-gray-100" @click="reduceNums(index)">-</button>
                       <input :readonly="onlyOne" class="mx-0.5 w-14 text-center" type="text" v-model="count" @blur="blurNumbers(index)" />
                       <button class="w-6 h-6 text-center bg-gray-100" @click="addNums(index)">+</button>
-                      <div class="ml-6 text-xs" :class="[attrInventory==0 ? 'text-red-500' : 'text-gray-500']" style="color: #6b7280;">Available: {{attrInventory}}</div>
+                      <div class="ml-6 text-xs" :class="[attrInventory==0 ? 'text-red-500' : 'text-gray-500']" style="color: #6b7280;"><span>Available:</span> {{attrInventory}}</div>
                     </div>
                   </div>
                   <div class="my-2" v-if="priceList.length===aliAttr.length">
@@ -155,7 +155,7 @@
                       <div class="px-2 flex my-3 flex-wrap items-center h-10" v-for="(item,index) in aliAttr" :key="index">
                         <div class="flex-1 text-sm flex items-center gap-2">
                           <img v-show="item.image!==''" :src="item.image" class="w-9 h-9 rounded" />
-                          {{ item.valueTrans }}
+                          <span data-no-translate>{{ item.valueTrans }}</span>
                         </div>
                         <div>
                           <div class="flex">
@@ -166,7 +166,7 @@
                               <button class="w-6 h-6 text-center bg-gray-100" @click="addNum(index)">+</button>
                             </div>
                           </div>
-                          <div class="text-xs" :class="[priceList[index].qty==0 ? 'text-red-500' : 'text-gray-500']" >Available: {{priceList[index].qty}}</div>
+                          <div class="text-xs" :class="[priceList[index].qty==0 ? 'text-red-500' : 'text-gray-500']"><span>Available:</span> {{priceList[index].qty}}</div>
                         </div>
                       </div>
                     </div>
@@ -177,7 +177,7 @@
                       <div class="relative bg-white mb-3" v-for="(item,index) in aliAttrs" :key="item.attributeId">
                         <div class="border border-gray-100 text-base cursor-pointer rounded mr-3 shadow-sm flex items-center px-2 py-1 p-color" :class="index===actionColor ? 'action-slide-1' : ''" @click="selecColorAli(index)">
                           <img v-show="item.image!==''" :src="item.image" class="w-9 h-9 rounded" />
-                          <span class="pl-2 text-sm">{{ item.valueTrans }}</span>
+                          <span class="pl-2 text-sm" data-no-translate>{{ item.valueTrans }}</span>
                           <div class="badge-countup-position" v-show="skuNumber[index].value!==0">x{{ skuNumber[index].value }}</div>
                         </div>
                       </div>
@@ -192,7 +192,7 @@
                       <div class="relative bg-white mb-3" v-for="(item,index) in colorAttribute" :key="item.attributeId">
                         <div class="border border-gray-100 text-base cursor-pointer rounded mr-3 shadow-sm flex items-center px-2 py-1 p-color" :class="index===actionColor ? 'action-slide-1' : ''" @click="selecColor(index)">
                           <img v-show="skuImageList.length>0" :src="skuImageList[index]" class="w-9 h-9 rounded" />
-                          <span class="pl-2 text-sm">{{ item.valueTrans }}</span>
+                          <span class="pl-2 text-sm" data-no-translate>{{ item.valueTrans }}</span>
                           <div class="badge-countup-position" v-show="skuNumber[index].value!==0">x{{ skuNumber[index].value }}</div>
                         </div>
                       </div>
@@ -209,7 +209,7 @@
                               :class="skuImageList[index]?'block':'hidden'"
                               @mouseenter="showImage(skuImageList[index])" />
                           </div>
-                          <div class="skuTitle" :title="item.valueTrans">{{ item.valueTrans }}</div>
+                          <div class="skuTitle" :title="item.valueTrans" data-no-translate>{{ item.valueTrans }}</div>
                         </div>
                         <div class="w-56">
                           <div class="flex items-center">
@@ -220,7 +220,7 @@
                               <button class="w-6 h-6 text-center bg-gray-100" @click="addNum(index)">+</button>
                             </div>
                           </div>
-                          <div class="text-xs">Available: {{ priceList[index].qty }}</div>
+                          <div class="text-xs"><span>Available:</span> {{ priceList[index].qty }}</div>
                         </div>
                       </div>
                     </div>
@@ -365,13 +365,13 @@
                   </div>
                 </div>
 
-                <a href="/admin/main/booking" class="py-2.5 w-full flex justify-between items-center" target="_blank">
-                  <div class="text-xs w-full">Have questions about pricing? Click here to learn more.</div>
-                  <div class="text-sm shrink-0 mr-3 flex">
+                <div class="flex w-full flex-col gap-2 py-3 text-sm text-gray-600 sm:flex-row sm:items-center sm:justify-between">
+                  <div>Shipping calculated automatically</div>
+                  <a href="/admin/main/booking" class="inline-flex min-h-10 items-center gap-1.5 font-medium text-orange-700 hover:text-orange-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2" target="_blank" rel="noopener noreferrer">
                     <svg t="1761813196913" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5837" width="20" height="20"><path d="M532.523781 653.790711h-40.51207c-11.186971 0-20.255523 9.0706-20.255524 20.255524v40.514118c0 11.184923 9.068552 20.255523 20.255524 20.255524h40.51207c11.186971 0 20.255523-9.0706 20.255524-20.255524V674.047259c0.001024-11.185947-9.067528-20.256547-20.255524-20.256548z m0-141.790711h-40.51207c-11.186971 0-20.255523 9.0706-20.255524 20.255523v40.512071c0 11.186971 9.068552 20.257571 20.255524 20.257571h40.51207c11.186971 0 20.255523-9.0706 20.255524-20.257571v-40.512071c0.001024-11.184923-9.067528-20.255523-20.255524-20.255523z m-182.302782 0h-40.51207c-11.186971 0-20.255523 9.0706-20.255524 20.255523v40.512071c0 11.186971 9.068552 20.257571 20.255524 20.257571h40.51207c11.184923 0 20.255523-9.0706 20.255524-20.257571v-40.512071c0-11.184923-9.0706-20.255523-20.255524-20.255523z m425.373158-384.862111H248.941335c-44.748908 0-81.023117 36.276257-81.023118 81.025165v607.674916c0 44.748908 36.274209 81.023117 81.023118 81.023118h526.652822c44.74686 0 81.023117-36.274209 81.023118-81.023118V208.164078c0.001024-44.749932-36.275233-81.026189-81.023118-81.026189z m40.512071 688.702129c0 22.374966-18.137105 40.512071-40.512071 40.512071H248.941335c-22.374966 0-40.512071-18.137105-40.512071-40.512071v-607.67594c0-22.374966 18.137105-40.512071 40.512071-40.512071h526.652822c22.374966 0 40.512071 18.137105 40.512071 40.512071v607.67594zM350.220999 653.790711h-40.51207c-11.186971 0-20.255523 9.0706-20.255524 20.255524v40.514118c0 11.184923 9.068552 20.255523 20.255524 20.255524h40.51207c11.184923 0 20.255523-9.0706 20.255524-20.255524V674.047259c0-11.185947-9.0706-20.256547-20.255524-20.256548z m364.605564-141.790711h-40.51207c-11.186971 0-20.255523 9.0706-20.255524 20.255523v40.512071c0 11.186971 9.068552 20.257571 20.255524 20.257571h40.51207c11.186971 0 20.255523-9.0706 20.255524-20.257571v-40.512071c0.001024-11.184923-9.067528-20.255523-20.255524-20.255523z m-20.255523-263.326923h-364.605564c-22.374966 0-40.512071 18.139152-40.512071 40.51207v81.025165c0 22.374966 18.137105 40.510023 40.512071 40.510023h364.605564c22.372918 0 40.512071-18.135057 40.512071-40.510023v-81.025165c0-22.372918-18.139152-40.512071-40.512071-40.51207z m0 121.537235h-364.605564v-81.023117h364.605564v81.023117z m20.255523 283.580399h-40.51207c-11.186971 0-20.255523 9.0706-20.255524 20.255524v40.514118c0 11.184923 9.068552 20.255523 20.255524 20.255524h40.51207c11.186971 0 20.255523-9.0706 20.255524-20.255524V674.047259c0.001024-11.185947-9.067528-20.256547-20.255524-20.256548z" fill="#8a8a8a" p-id="5838"></path></svg>
-                    International Shipping Calculator
-                  </div>
-                </a>
+                    <span>Shipping calculator</span>
+                  </a>
+                </div>
                 <div v-show="totalNumber!==0" class="text-gray-950 w-full pt-2 pb-4 flex flex-col flex-wrap relative items-end font-bold">
                   <!-- <div v-show="showFee" class="absolute -top-20 h-20 bg-white w-full px-4 border-t border-b text-gray-500 font-normal flex items-center flex-wrap">
                     <div class="flex justify-between w-full"><div>Item subtotal ({{ totalNumber }} products)</div><div>${{ totalPrice }}</div></div>
@@ -440,24 +440,34 @@
                   </div> -->
                 </div>
 
-                <div v-if="quoteType!==0" class="flex flex-wrap items-center justify-around gap-2">
-                  <label v-if="shopSource!=5" class="mb-2 flex h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700">
-                    <span>Listing language</span>
-                    <select v-model="contentLanguage" class="bg-transparent outline-none" @change="saveContentLanguage">
-                      <option v-for="language in contentLanguages" :key="language.value" :value="language.value">{{ language.label }}</option>
-                    </select>
-                  </label>
-                  <button v-if="shopSource!=5" class="mb-2 h-10 rounded-lg border border-orange-600 bg-orange-600 px-5 font-semibold text-white hover:bg-orange-700" @click="goList('ai')"><span class="inline-block">AI List</span></button>
-                  <button v-if="shopSource!=5" class="mb-2 h-10 rounded-lg border border-orange-600 bg-white px-5 font-semibold text-orange-700 hover:bg-orange-50" @click="goList('manual')"><span class="inline-block">Manual List</span></button>
-                  <button v-if="shopSource!=5" class="mb-2 px-4 h-10 text-orange-500 border border-orange-500 hover:bg-gray-200 rounded-lg" @click="addShop"><span class="inline-block">Add to products</span></button>
-                  <button v-show="!onlyOne" :class="shopSource==5?'mr-10':''" class="mb-2 px-4 h-10 text-orange-500 border border-orange-500 hover:bg-gray-200 rounded-lg" @click="addCar"><span class="inline-block relative">Add to cart<div v-show="loadingCart" style="width:1.4rem;height:1.4rem;left:37%;" class="loader inline-block mx-1 align-middle absolute"></div></span></button>
-                  <button v-show="!onlyOne" class="mb-2 px-4 h-10 text-white bg-orange-500 hover:bg-orange-500 rounded-lg" @click="buyNow"><span class="inline-block relative">Buy Now<div v-show="loadingBuy" style="width:1.4rem;height:1.4rem;left:37%;" class="loader inline-block mx-1 align-middle absolute"></div></span></button>
-                  <button v-show="onlyOne" class="mb-2 px-4 h-10 text-white bg-orange-500 hover:bg-orange-500 rounded-lg" @click="buyNow"><span class="inline-block relative">Buy Now<div v-show="loadingBuy" style="width:1.4rem;height:1.4rem;left:37%;" class="loader inline-block mx-1 align-middle absolute"></div></span></button>
+                <div v-if="quoteType!==0" class="w-full border-t border-gray-200 pt-4">
+                  <div v-if="shopSource!=5" class="grid w-full gap-3">
+                    <div>
+                      <button type="button" class="min-h-12 w-full rounded-lg border border-orange-600 bg-orange-600 px-5 py-3 text-base font-semibold text-white transition-colors hover:bg-orange-700 active:bg-orange-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2" @click="goList('ai')">
+                        List to my store
+                      </button>
+                      <p class="mt-1.5 text-center text-xs text-gray-500">AI-assisted by default</p>
+                    </div>
+                    <button v-show="!onlyOne" type="button" class="min-h-12 w-full rounded-lg border border-orange-600 bg-white px-5 py-3 text-base font-semibold text-orange-700 transition-colors hover:bg-orange-50 active:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60" :disabled="loadingCart" :aria-busy="loadingCart" @click="addCar">
+                      {{ loadingCart ? 'Adding...' : 'Add to cart' }}
+                    </button>
+                    <div class="flex min-h-10 flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm font-medium">
+                      <button type="button" class="min-h-10 text-orange-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2" @click="goList('manual')">Manual listing</button>
+                      <span class="h-4 w-px bg-gray-300" aria-hidden="true"></span>
+                      <button type="button" class="min-h-10 text-orange-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60" :disabled="loadingBuy" :aria-busy="loadingBuy" @click="buyNow">{{ loadingBuy ? 'Preparing...' : 'Order now' }}</button>
+                    </div>
+                  </div>
+                  <div v-else class="grid w-full gap-3">
+                    <button type="button" class="min-h-12 w-full rounded-lg border border-orange-600 bg-orange-600 px-5 py-3 text-base font-semibold text-white transition-colors hover:bg-orange-700 active:bg-orange-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60" :disabled="loadingBuy" :aria-busy="loadingBuy" @click="buyNow">
+                      {{ loadingBuy ? 'Preparing...' : 'Order now' }}
+                    </button>
+                    <button v-show="!onlyOne" type="button" class="min-h-12 w-full rounded-lg border border-orange-600 bg-white px-5 py-3 text-base font-semibold text-orange-700 transition-colors hover:bg-orange-50 active:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60" :disabled="loadingCart" :aria-busy="loadingCart" @click="addCar">
+                      {{ loadingCart ? 'Adding...' : 'Add to cart' }}
+                    </button>
+                  </div>
                 </div>
                 <div v-if="quoteType===0" class="flex justify-evenly text-center">
                   <button class="mb-2 w-32 h-10 text-orange-500 border border-orange-500 hover:bg-gray-200 rounded-lg" @click="chatNows"><span class="inline-block">Chat Now</span></button>
-                  <!-- <button class="mb-2 px-4 h-10 text-orange-500 border border-orange-500 hover:bg-gray-200 rounded-lg" @click="addCars"><span class="inline-block relative">Add to cart<div v-show="loadingCart" style="width:1.4rem;height:1.4rem;left:37%;" class="loader inline-block mx-1 align-middle absolute"></div></span></button>
-                  <button class="mb-2 px-4 h-10 text-white bg-orange-500 hover:bg-orange-500 rounded-lg" @click="buyNows"><span class="inline-block relative">Buy Now<div v-show="loadingBuy" style="width:1.4rem;height:1.4rem;left:37%;" class="loader inline-block mx-1 align-middle absolute"></div></span></button> -->
                 </div>
                 <div class="ml-4 text-red-600 w-full" v-show="showCart">Quantity cannot be less than {{ leastQuantity }}</div>
               </div>
@@ -522,7 +532,7 @@
 import { ref, reactive, onMounted, onUnmounted, watch, inject } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRuntimeConfig } from '#app'
-import { getDetail, getRate, getCountry, getDefault, getWeght, getPrice, getInfo, addCartList, addShopList, getEcoBuyerItemAdd, getImgId, getPurchaseFee } from '~/services/api'
+import { getDetail, getRate, getCountry, getDefault, getWeght, getPrice, getInfo, addCartList, getEcoBuyerItemAdd, getImgId, getPurchaseFee } from '~/services/api'
 
 definePageMeta({ layout: 'default' })
 
@@ -542,6 +552,8 @@ const contentLanguages = [
   { value: 'ru-RU', label: 'Русский' },
 ]
 const contentLanguage = ref('en-US')
+const productTitleSource = ref('')
+let dynamicTranslationRun = 0
 
 const iptFileRef = ref(null)
 const loadingPanel = ref(null)
@@ -565,7 +577,6 @@ const actOption = ref('')
 const exchange = ref(6)
 const showCart = ref(false)
 const loadingCart = ref(false)
-const loadingShop = ref(false)
 const loadingBuy = ref(false)
 const loadingPage = ref(true)
 const message = ref('')
@@ -644,6 +655,84 @@ const oneWeight = ref(0)
 const oneVolume = ref(0)
 
 let scrollHandler = () => { const y = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop; backVisible.value = y > 400 }
+
+function sanitizeSupplierDescription(value) {
+  return String(value || '')
+    .replace(/<p\b[^>]*>\s*(?:null|undefined)\s*<\/p>/gi, '')
+    .replace(/(^|>)\s*(?:null|undefined)\s*(?=<|$)/gi, '$1')
+}
+
+function containsNonLatinProductText(value) {
+  return /[\u3400-\u9fff\u3040-\u30ff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]/.test(String(value || ''))
+}
+
+async function translateDynamicProductData() {
+  const targetLanguage = contentLanguage.value
+  const run = ++dynamicTranslationRun
+  const bindings = []
+  const addBinding = (source, apply) => {
+    const normalized = String(source || '').trim()
+    if (normalized) bindings.push({ source: normalized, apply })
+  }
+
+  addBinding(productTitleSource.value, (translated) => { shopDetail.subjectTrans = translated })
+
+  const addTranslatedItems = (items) => {
+    for (const item of items || []) {
+      const source = String(item.value ?? item.valueTrans ?? '').trim()
+      addBinding(source, (translated) => { item.valueTrans = translated })
+    }
+  }
+  addTranslatedItems(colorAttribute.value)
+  addTranslatedItems(sizeAttribute.value)
+  addTranslatedItems(aliAttr.value)
+  addTranslatedItems(aliAttrs.value)
+
+  for (const variable of wVariables.value || []) {
+    for (const item of variable.values || []) {
+      if (!item.translationSource) item.translationSource = String(item.name || '')
+      addBinding(item.translationSource, (translated) => { item.name = translated })
+    }
+  }
+  for (const region of skuInfo.value?.[0]?.regions || []) {
+    if (!region.translationSource) region.translationSource = String(region.name || '')
+    addBinding(region.translationSource, (translated) => { region.name = translated })
+  }
+
+  // Restore the supplier source immediately when switching languages. The
+  // translated values are display-only; SKU matching continues to use `value`.
+  for (const binding of bindings) binding.apply(binding.source)
+  const requestedBindings = targetLanguage === 'en-US'
+    ? bindings.filter((binding) => containsNonLatinProductText(binding.source))
+    : targetLanguage === 'zh-CN'
+      ? bindings.filter((binding) => !/[\u3400-\u9fff]/.test(binding.source))
+      : bindings
+  const sources = [...new Set(requestedBindings.map((binding) => binding.source))]
+  if (!sources.length) return
+
+  try {
+    const translatedBySource = new Map()
+    for (let start = 0; start < sources.length; start += 30) {
+      const batch = sources.slice(start, start + 30)
+      const response = await fetch('/listing-api/v1/site-translations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetLanguage, texts: batch }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload?.error?.message || 'Product translation failed')
+      const translations = payload?.data?.translations
+      if (!Array.isArray(translations) || translations.length !== batch.length) throw new Error('Product translation returned incomplete content')
+      batch.forEach((source, index) => translatedBySource.set(source, String(translations[index] || source)))
+    }
+    if (run !== dynamicTranslationRun || targetLanguage !== contentLanguage.value) return
+    for (const binding of requestedBindings) binding.apply(translatedBySource.get(binding.source) || binding.source)
+  } catch (error) {
+    // Supplier content remains usable when the translation service is
+    // temporarily unavailable; static interface translations stay intact.
+    console.warn('[product-detail] Dynamic product translation deferred:', error instanceof Error ? error.message : error)
+  }
+}
 
 function showGlobalTooltip(t, type='success') {
   const el = document.getElementById('global-tooltip')
@@ -757,6 +846,7 @@ function setColorPrice() {
   const sizeNumber = sizeAttribute.value.map(() => 0)
   // skuNumber.value = []
   colorAttribute.value.map(() => { skuNumber.value.push({ sizeNumber: sizeNumber.slice(), value: 0 }) })
+  if (productTitleSource.value) void translateDynamicProductData()
 }
 
 function setColorPriceAli() {
@@ -781,6 +871,7 @@ function setColorPriceAli() {
   const sizeNumber = aliAttr.value.map(() => 0)
   // skuNumber.value = []
   aliAttrs.value.map(() => { skuNumber.value.push({ sizeNumber: sizeNumber.slice(), value: 0 }) })
+  if (productTitleSource.value) void translateDynamicProductData()
 }
 
 function addAndRound(num1, num2, num3, num4) {
@@ -824,8 +915,7 @@ function initData() {
   getCountry({}).then(res => {
     let endCountry = res.data.data.endCountry
     countryOptions.value = endCountry
-    filteredOptions.value = endCountry.map(item => ({ value: item.en_nickname, label: item.en_nickname }))
-    options.value = JSON.parse(JSON.stringify(filteredOptions.value))
+    refreshCountryOptions()
     getDefault().then(req => {
       selectedValue.value = req.data.data.name
       searchText.value = req.data.data.name
@@ -839,6 +929,16 @@ function initData() {
     // selectedValue.value = 'Mexico'
     // actionRegion.value = 'MX'
   })
+}
+
+function refreshCountryOptions() {
+  let regionNames
+  try { regionNames = new Intl.DisplayNames([contentLanguage.value], { type: 'region' }) } catch { regionNames = null }
+  filteredOptions.value = countryOptions.value.map((item) => ({
+    value: item.en_nickname,
+    label: regionNames?.of(String(item.code_two || '').toUpperCase()) || item.en_nickname,
+  }))
+  options.value = JSON.parse(JSON.stringify(filteredOptions.value))
 }
 
 function fetchShipPrice(totalShipping, totalVolume) {
@@ -1222,21 +1322,6 @@ function getSkuAli() {
 function lookSkuAli(att1, att2) { return skuInfo.value.find(sku => sku.sku_attr_list[1].attr_value_desc == att1 && sku.sku_attr_list[0].attr_value_desc == att2) }
 function lookSkuAlis(att1) { return skuInfo.value.find(sku => sku.sku_attr_list[0].attr_value_desc == att1) }
 
-function addShop() {
-  if (isLogin()) {
-    if (!loadingShop.value) {
-      loadingShop.value = true
-      addShopList({ source: shopSource.value, goodsId: shopId.value, country_code: actionRegion.value }).then(res => {
-        if (res.data.code == 0) { loadingShop.value = false; showGlobalTooltip('Success!') }
-        else { loadingShop.value = false; showGlobalTooltip(res.data.msg, 'info') }
-      })
-    }
-  } else {
-    window.open(config.public.loginUrl, '_blank')
-    showGlobalTooltip('Please log', 'info')
-  }
-}
-
 function addCar() {
   let vendor = ''
   if (freightList.value.length > 0) vendor = freightList.value[actionFre.value].vendor
@@ -1587,8 +1672,9 @@ onMounted(() => {
           isShippingIncluded.value = ''
           west_sku.value = info.main_info.product_sku_id
           shop_name.value = 'WestMonth'
-          shopDetail.subjectTrans = info.sub_info.name
-          shopDetail.description = info.sub_info.description
+          productTitleSource.value = String(info.sub_info.name || '')
+          shopDetail.subjectTrans = productTitleSource.value
+          shopDetail.description = sanitizeSupplierDescription(info.sub_info.description)
           swiperImages.value = info.sub_info.images.map(i => i.preview)
           bigImage.value = swiperImages.value[0]
           wVariables.value = info.sub_info.variables
@@ -1603,6 +1689,7 @@ onMounted(() => {
           priceRangeList.startQuantity = 1
           loadingPage.value = false
           loadEnd()
+          void translateDynamicProductData()
           quoteType.value = 1
         } else if (shopSource.value == 5) {
           const data = res2.data.data
@@ -1611,8 +1698,9 @@ onMounted(() => {
           }
           isShippingIncluded.value = ''
           shop_name.value = data.supplier
-          shopDetail.subjectTrans = data.title
-          shopDetail.description = data.description
+          productTitleSource.value = String(data.title || '')
+          shopDetail.subjectTrans = productTitleSource.value
+          shopDetail.description = sanitizeSupplierDescription(data.description)
           swiperImages.value = data.images
           itemInventory.value = data.itemInventory
           bigImage.value = swiperImages.value[0]
@@ -1681,12 +1769,14 @@ onMounted(() => {
           }
           loadingPage.value = false
           loadEnd()
+          void translateDynamicProductData()
         } else {
           const data = res2.data.data
           isShippingIncluded.value = data.isShippingIncluded
           shop_name.value = data.shop_name
-          shopDetail.subjectTrans = data.subjectTrans
-          shopDetail.description = data.description
+          productTitleSource.value = String(data.subjectTrans || '')
+          shopDetail.subjectTrans = productTitleSource.value
+          shopDetail.description = sanitizeSupplierDescription(data.description)
           swiperImages.value = data.productImage.images
           bigImage.value = swiperImages.value[0]
           priceRangeList.price = data.productSaleInfo.priceRangeList[0].price
@@ -1752,6 +1842,7 @@ onMounted(() => {
           }
           loadingPage.value = false
           loadEnd()
+          void translateDynamicProductData()
         }
       } else { overdue.value = true }
     })
@@ -1769,7 +1860,11 @@ onMounted(() => {
 })
 
 function syncContentLanguage(event) {
-  if (contentLanguages.some((language) => language.value === event.detail)) contentLanguage.value = event.detail
+  if (contentLanguages.some((language) => language.value === event.detail)) {
+    contentLanguage.value = event.detail
+    refreshCountryOptions()
+    void translateDynamicProductData()
+  }
 }
 
 onUnmounted(() => window.removeEventListener('cod-content-language-change', syncContentLanguage))

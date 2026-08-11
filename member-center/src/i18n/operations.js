@@ -161,7 +161,7 @@ export const operationsMessages = {
     'products.reset': 'Reset',
     'products.selected': '{value} selected',
     'products.bulkTip': 'Bulk actions use the original CoD workflow.',
-    'products.aiList': 'AI List',
+    'products.aiList': 'List to my store',
     'products.refreshProduct': 'Refresh product',
     'products.delete': 'Delete',
     'products.allProducts': 'All CoD products',
@@ -306,7 +306,7 @@ export const operationsMessages = {
 
     'products.views': '商品库视图', 'products.productName': '商品名称', 'products.searchPlaceholder': '搜索标题或商品编号', 'products.source': '商品来源', 'products.publishStatus': '店铺状态', 'products.inventoryStatus': '库存状态', 'products.all': '全部',
     'products.pushed': '已发布', 'products.notPushed': '未发布', 'products.pushing': '发布中', 'products.added': '已加入', 'products.unadded': '未加入', 'products.reset': '重置',
-    'products.selected': '已选择 {value} 项', 'products.bulkTip': '批量操作继续使用原 CoD 业务流程。', 'products.aiList': 'AI 刊登', 'products.refreshProduct': '更新商品', 'products.delete': '删除',
+    'products.selected': '已选择 {value} 项', 'products.bulkTip': '批量操作继续使用原 CoD 业务流程。', 'products.aiList': '上架到我的店铺', 'products.refreshProduct': '更新商品', 'products.delete': '删除',
     'products.allProducts': '全部 CoD 商品', 'products.listedProducts': '已发布商品', 'products.delistedProducts': '已下架商品', 'products.realDataNote': '价格、店铺和状态均来自你的真实 CoD 账户。', 'products.selectPage': '选择本页', 'products.selectProduct': '选择 {value}',
     'products.productId': '商品编号 {value}', 'products.costPrice': '成本价', 'products.deleteProduct': '移除商品', 'products.totalProducts': '共 {value} 个商品', 'products.unknown': '未知',
     'products.listErrorTitle': '商品加载失败', 'products.listErrorFallback': '商品服务没有响应。', 'products.noProductsTitle': '当前视图没有商品', 'products.noProductsCopy': '调整筛选条件，或从 CoD 选择新的商品。',
