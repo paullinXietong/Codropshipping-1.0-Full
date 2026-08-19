@@ -35,7 +35,7 @@ demo_pids+=($!)
 demo_pids+=($!)
 
 print ""
-print "Codropshipping 1.0 完整版正在启动："
+print "Codropshipping 3.0 Vue 3 完整版正在启动："
 print "  官网与商品详情：http://127.0.0.1:3000"
 print "  客户端登录：http://127.0.0.1:3000/admin/login"
 print "  商品搜索服务：http://127.0.0.1:8788/health"

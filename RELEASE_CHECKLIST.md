@@ -1,9 +1,9 @@
-# Codropshipping 1.0 完整版上线验收清单
+# Codropshipping 3.0 完整版（Vue 3）上线验收清单
 
 ## 代码与安全
 
-- [ ] 根目录 `VERSION` 与四个服务的 `package.json` 均为 `1.0.0`。
-- [ ] 发布包名称为 `Codropshipping-1.0-Full-*`，SHA-256 校验通过。
+- [ ] 根目录 `VERSION` 与四个服务的 `package.json` 均为 `3.0.0`。
+- [ ] 发布包名称为 `Codropshipping-3.0-Full-*`，SHA-256 校验通过。
 - [ ] CI 的测试、构建、release lint、统一 UI 镜像、Compose 校验和 Secret 扫描全部通过。
 - [ ] 生产运行依赖无 Critical/High；构建期剩余风险已记录并接受。
 - [ ] `.env`、SQLite/WAL、API Key、Cookie、Shopify 密码未进入提交。

@@ -33,9 +33,9 @@ if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; 
     -f "$ROOT_DIR/web-search/docker-compose.yml" config --quiet
   docker compose --env-file "$ROOT_DIR/web-search/.env.production.example" \
     -f "$ROOT_DIR/web-search/docker-compose.yml" build ui
-  docker run --rm --entrypoint nginx codropshipping/ui:1.0.0 -t
+  docker run --rm --entrypoint nginx codropshipping/ui:3.0.0 -t
 else
   echo "Docker is unavailable; unified UI image validation must run in CI or on the IT host."
 fi
 
-echo "Codropshipping 1.0 source readiness checks passed."
+echo "Codropshipping 3.0 Vue 3 source readiness checks passed."

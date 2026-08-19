@@ -1,6 +1,6 @@
-# Codropshipping 1.0 部署入口
+# Codropshipping 3.0（Vue 3）部署入口
 
-Codropshipping 1.0 不是单独上传一个静态官网即可运行的项目。官网与客户工作台已经合并到同一个 `ui` Docker 镜像，正式测试环境必须同时部署该镜像、刊登 API 和搜索 API。
+Codropshipping 3.0 不是单独上传一个静态官网即可运行的项目。官网与客户工作台已经合并到同一个 Nuxt 3 / Vue 3 `ui` Docker 镜像，正式测试环境必须同时部署该镜像、刊登 API 和搜索 API。
 
 请从仓库根目录执行，并以 [../DEPLOYMENT.md](../DEPLOYMENT.md) 为唯一部署手册：
 

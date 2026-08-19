@@ -1,4 +1,4 @@
-# Codropshipping 1.0 完整版本地全链路演示
+# Codropshipping 3.0 完整版（Vue 3）本地全链路演示
 
 ## 已接通流程
 

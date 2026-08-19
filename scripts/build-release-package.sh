@@ -4,7 +4,7 @@ set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 VERSION=$(tr -d '[:space:]' < "$ROOT_DIR/VERSION")
-PACKAGE_ROOT="Codropshipping-1.0-Full"
+PACKAGE_ROOT="Codropshipping-3.0-Full"
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 OUTPUT_DIR=${1:-"$ROOT_DIR/../releases"}
 ARCHIVE="$OUTPUT_DIR/${PACKAGE_ROOT}-${STAMP}.tar.gz"
@@ -20,8 +20,8 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-if [ "$VERSION" != "1.0.0" ]; then
-  echo "VERSION must be 1.0.0 for the Codropshipping 1.0 package." >&2
+if [ "$VERSION" != "3.0.0" ]; then
+  echo "VERSION must be 3.0.0 for the Codropshipping 3.0 package." >&2
   exit 1
 fi
 
@@ -82,7 +82,7 @@ if grep -R -I -n -E '(CoD 0\.2|CoD-0\.2|cod-0\.2|codropshipping-2)' \
 fi
 
 printf '%s\n' \
-  'Product: Codropshipping 1.0 完整版' \
+  'Product: Codropshipping 3.0 完整版（Vue 3）' \
   "Version: $VERSION" \
   "Package root: $PACKAGE_ROOT" \
   "Created UTC: $STAMP" \

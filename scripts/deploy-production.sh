@@ -11,4 +11,4 @@ docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" build --pull
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --remove-orphans
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps
 
-echo "Codropshipping 1.0 is deployed. Run the production smoke test before business acceptance."
+echo "Codropshipping 3.0 Vue 3 is deployed. Run the production smoke test before business acceptance."

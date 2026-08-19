@@ -1,4 +1,4 @@
-# Codropshipping 1.0 完整版部署手册
+# Codropshipping 3.0 完整版（Vue 3）部署手册
 
 本文供 IT 在独立服务器部署。当前工作只生成本地可交付版本，不会自动推送 GitHub 或操作生产环境。
 
@@ -6,7 +6,7 @@
 
 | 入口 | 服务 | 用途 |
 | --- | --- | --- |
-| `/` | `ui` | Codropshipping 1.0 官网、浏览与选品 |
+| `/` | `ui` | Codropshipping 3.0 官网、浏览与选品 |
 | `/admin/*` | `ui` | 与官网同镜像、同容器的全新客户工作台 |
 | `/listing-api/*` | `listing-api` | 草稿、AI 文案/图片、翻译与 Shopify 发布编排 |
 | `/search-api/*` | `search-api` | 商品搜索与筛选 |
@@ -23,7 +23,7 @@ Docker 只将统一 `ui` 容器映射到宿主机端口，`listing-api` 和 `sea
 5. 不得把生产 `.env` 放入仓库。
 
 ```bash
-cd /opt/codropshipping/Codropshipping-1.0-Full
+cd /opt/codropshipping/Codropshipping-3.0-Full
 cp web-search/.env.production.example /etc/codropshipping/codropshipping-1.0.env
 chmod 600 /etc/codropshipping/codropshipping-1.0.env
 ```

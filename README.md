@@ -1,6 +1,10 @@
-# Codropshipping 1.0 完整版
+# Codropshipping 3.0 完整版（Vue 3）
 
-这是 Codropshipping 1.0 官网、客户工作台和服务端编排的一体化源码包。它包含选品、全球语言、AI 刊登、Shopify 发布、订单/履约/库存/财务/洞察、商品搜索以及生产部署拓扑。版本号以根目录 [VERSION](./VERSION) 为准；本地演示见 [LOCAL_DEMO.md](./LOCAL_DEMO.md)，IT 部署见 [DEPLOYMENT.md](./DEPLOYMENT.md)。
+![Release](https://img.shields.io/badge/release-v3.0.0-f15a24)
+![Frontend](https://img.shields.io/badge/frontend-Vue%203-42b883)
+![Deployment](https://img.shields.io/badge/deployment-Docker-2496ed)
+
+这是 Codropshipping 3.0 官网、客户工作台和服务端编排的一体化源码包。官网与新版客户后台由同一个 Nuxt 3 / Vue 3 生产构建提供，不包含旧 Vue 2 后台运行时。它包含选品、全球语言、AI 刊登、Shopify 发布、订单/履约/库存/财务/洞察、商品搜索以及生产部署拓扑。版本号以根目录 [VERSION](./VERSION) 为准；本地演示见 [LOCAL_DEMO.md](./LOCAL_DEMO.md)，IT 部署见 [DEPLOYMENT.md](./DEPLOYMENT.md)。
 
 ## 目录
 
@@ -57,7 +61,7 @@ npm start
 ./scripts/build-release-package.sh
 ```
 
-脚本会生成 `Codropshipping-1.0-Full-<UTC时间>.tar.gz` 和对应 `.sha256`，并自动拒绝包含真实环境变量、数据库、依赖目录、构建缓存、旧版入口或可疑凭证的包。
+脚本会生成 `Codropshipping-3.0-Full-<UTC时间>.tar.gz` 和对应 `.sha256`，并自动拒绝包含真实环境变量、数据库、依赖目录、构建缓存、旧版入口或可疑凭证的包。
 
 ## 上线说明
 

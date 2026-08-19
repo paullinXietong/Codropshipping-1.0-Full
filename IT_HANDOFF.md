@@ -1,8 +1,8 @@
-# Codropshipping 1.0 完整版 — IT 测试环境交接
+# Codropshipping 3.0 完整版（Vue 3）- IT 测试环境交接
 
 ## 交付物
 
-- 发布包：`Codropshipping-1.0-Full-*.tar.gz`
+- 发布包：`Codropshipping-3.0-Full-*.tar.gz`
 - 完整性校验：同名 `.sha256`
 - 部署入口：`DEPLOYMENT.md`
 - 上线验收：`RELEASE_CHECKLIST.md`
@@ -35,8 +35,8 @@ Shopify 使用现有 CoD 授权与发布接口。Amazon、TikTok Shop、WooComme
 ## 最短部署步骤
 
 ```bash
-tar -xzf Codropshipping-1.0-Full-*.tar.gz
-cd Codropshipping-1.0-Full
+tar -xzf Codropshipping-3.0-Full-*.tar.gz
+cd Codropshipping-3.0-Full
 cp web-search/.env.production.example /etc/codropshipping/codropshipping-1.0.env
 # 由 Secret Manager 或 IT 填写真实测试环境配置
 ./scripts/validate-deployment.sh /etc/codropshipping/codropshipping-1.0.env
