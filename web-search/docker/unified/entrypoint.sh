@@ -1,14 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-required_file=/usr/share/nginx/html/admin/index.html
 template_file=/etc/nginx/templates/default.conf.template
 rendered_file=/etc/nginx/http.d/default.conf
-
-if [ ! -s "$required_file" ]; then
-  echo "Unified UI image is missing the customer workspace artifact." >&2
-  exit 1
-fi
 
 envsubst '${COD_UPSTREAM_HOST} ${COD_MALL_UPSTREAM_HOST}' \
   < "$template_file" > "$rendered_file"

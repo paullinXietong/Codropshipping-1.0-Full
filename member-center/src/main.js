@@ -10,6 +10,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { installWorkspaceI18n } from '@/i18n/workspace'
 import { installWorkspacePageTranslation } from '@/i18n/pageTranslation'
+import { installJourneyTracking } from '@/services/journey'
 
 Vue.use(Element);
  
@@ -30,6 +31,7 @@ NProgress.configure({
 Vue.config.productionTip = false;
 installWorkspaceI18n()
 installWorkspacePageTranslation()
+installJourneyTracking(router)
 // Vue.prototype.$message = Message;
 
 Vue.prototype.$globalWeb = window.location.host;

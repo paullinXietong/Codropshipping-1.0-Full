@@ -7,7 +7,8 @@
     <div v-show="!chatOpen" @click="chatPanelOpen" id="co-chatmini" class="bg-white rounded-full shadow cursor-pointer px-2 py-2">
       <div class="flex items-center">
         <div class="relative">
-          <img :src="manageNew.image_url || ''" class="w-12 h-12 rounded-full" />
+          <img v-if="manageNew.image_url" :src="manageNew.image_url" class="w-12 h-12 rounded-full" alt="" />
+          <span v-else class="chat-avatar-fallback">Co</span>
           <div class="absolute right-0 bottom-0 w-2.5 h-2.5 bg-green-400 rounded-full"></div>
         </div>
         <div v-show="chatNum>0" class="absolute top-0 right-0 text-white bg-red-500 rounded-full px-1.5 py-0.5 text-xs">{{ chatNum }}</div>
@@ -17,20 +18,24 @@
     <div v-show="chatOpen" id="co-chatmodal" class="w-96 bg-white rounded shadow">
       <div class="p-3 flex items-center border-b relative">
         <div class="relative mr-3">
-          <img class="w-12 h-12 rounded-full" :src="manageNew.image_url || ''" />
+          <img v-if="manageNew.image_url" class="w-12 h-12 rounded-full" :src="manageNew.image_url" alt="" />
+          <span v-else class="chat-avatar-fallback">Co</span>
           <div class="absolute right-0 bottom-0 w-2.5 h-2.5 bg-green-400 rounded-full"></div>
         </div>
         <div>
           <div class="flex items-center">
-            <div class="font-medium mr-4">{{ manageNew.englishname }}</div>
+            <div class="font-medium mr-4">{{ manageNew.englishname || 'Account Manager' }}</div>
             <button @click="toWhatsApp" class="text-green-600 underline">
               <svg @click="toWhatsApp" t="1724839971157" class="icon cursor-pointer" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6428" width="28" height="28"><path d="M512 512m-512 0a512 512 0 1 0 1024 0 512 512 0 1 0-1024 0Z" fill="#25D366" p-id="6429"></path><path d="M528.878933 796.842667h-0.136533a304.1792 304.1792 0 0 1-145.476267-37.034667L221.866667 802.133333l43.178666-157.764266a303.906133 303.906133 0 0 1-40.618666-152.200534C224.477867 324.3008 361.0624 187.733333 528.878933 187.733333a302.472533 302.472533 0 0 1 215.364267 89.2928 302.592 302.592 0 0 1 89.088 215.381334c-0.068267 167.816533-136.6016 304.384-304.469333 304.452266z m-138.1376-92.16l9.233067 5.4784a252.672 252.672 0 0 0 128.802133 35.2768h0.1024c139.4688 0 252.9792-113.527467 253.047467-253.047467a251.528533 251.528533 0 0 0-74.052267-179.029333 251.323733 251.323733 0 0 0-178.8928-74.205867c-139.588267 0-253.098667 113.493333-253.166933 253.0304a252.433067 252.433067 0 0 0 38.690133 134.656l6.024534 9.591467-25.565867 93.354666 95.778133-25.105066z m291.515734-139.8784c-1.8944-3.1744-6.980267-5.085867-14.574934-8.874667-7.611733-3.822933-45.0048-22.2208-51.985066-24.746667-6.980267-2.56-12.049067-3.822933-17.117867 3.7888-5.0688 7.611733-19.643733 24.746667-24.081067 29.832534-4.437333 5.0688-8.874667 5.717333-16.4864 1.8944-7.611733-3.805867-32.119467-11.8272-61.166933-37.751467-22.6304-20.1728-37.888-45.073067-42.325333-52.701867-4.437333-7.611733-0.477867-11.7248 3.328-15.530666 3.413333-3.413333 7.611733-8.874667 11.4176-13.312 3.805867-4.437333 5.0688-7.6288 7.611733-12.6976 2.525867-5.0688 1.262933-9.5232-0.631467-13.312-1.911467-3.822933-17.117867-41.2672-23.466666-56.490667-6.178133-14.848-12.458667-12.834133-17.117867-13.073067-4.437333-0.221867-9.506133-0.256-14.574933-0.256-5.0688 0-13.312 1.8944-20.292267 9.5232-6.9632 7.611733-26.624 26.0096-26.624 63.453867s27.272533 73.608533 31.061333 78.677333c3.805867 5.102933 53.640533 81.92 129.962667 114.875734a436.906667 436.906667 0 0 0 43.349333 16.042666c18.244267 5.7856 34.816 4.949333 47.9232 3.003734 14.626133-2.184533 45.021867-18.397867 51.370667-36.181334 6.314667-17.749333 6.314667-32.989867 4.420267-36.181333z" fill="#FDFDFD" p-id="6430"></path></svg>
             </button>
           </div>
           <div class="text-xs text-gray-500">Account Manager</div>
+          <div :class="['chat-connection', connectionState]"><span></span>{{ connectionLabel }}</div>
         </div>
         <button @click="chatOpen=false" class="absolute right-2 top-2 text-gray-500">✕</button>
       </div>
+      <div v-if="connectionState === 'offline'" class="chat-offline" role="status"><span>Live chat is reconnecting. Messages are saved as support requests.</span><button type="button" @click="retryConnection">Retry now</button></div>
+      <div v-if="supportStatus" :class="['support-status', { error: supportStatusError }]" role="status">{{ supportStatus }}</div>
       <div id="chatPanel" class="h-80 overflow-y-auto">
         <div ref="chatPanels" class="overflow-y-auto h-full p-3">
           <div v-for="(i,n) in chatMessage" :key="n">
@@ -282,7 +287,7 @@
       <div class="p-3 border-t">
         <div class="mb-2 flex justify-between items-center">
           <input ref="iptFileRef" type="file" class="hidden" @change="uploads" />
-          <button class="px-2 py-1 text-gray-700">
+          <button class="px-2 py-1 text-gray-700 disabled:opacity-40" :disabled="connectionState !== 'online'" :title="connectionState === 'online' ? 'Attach a file' : 'File attachments are available when live chat reconnects'">
             <svg @click="upload" t="1694769826059" class="icon" style="cursor: pointer;padding: 4px;" viewBox="0 0 1024 1024"
               version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4016" width="28" height="28">
               <path
@@ -293,7 +298,7 @@
                 p-id="4018" fill="#7a7a7a"></path>
             </svg>
           </button>
-          <button @click="sendMessage" class="px-3 py-1 bg-gray-400 text-white rounded-2xl">Send</button>
+          <button @click="sendMessage" class="px-3 py-1 bg-gray-400 text-white rounded-2xl disabled:opacity-50" :disabled="!msg.trim() || fallbackSubmitting">{{ fallbackSubmitting ? 'Saving…' : 'Send' }}</button>
         </div>
         <textarea @keyup.enter.exact="sendMessage" @keyup.ctrl.enter="listenKey" ref="textArea" v-model="msg" rows="2" class="w-full border rounded px-2 py-1 text-sm bg-gray-50 resize-none outline-none"></textarea>
       </div>
@@ -302,8 +307,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, defineExpose } from 'vue'
-import { getRate } from '~/services/api'
+import { ref, reactive, computed, onMounted, onUnmounted, defineExpose } from 'vue'
+import { getRate, submitSupportFeedback } from '~/services/api'
 import axios from 'axios'
 import MarkdownIt from 'markdown-it';
 const config = useRuntimeConfig()
@@ -320,6 +325,11 @@ const chatPanels = ref(null)
 const times = ref(Date.now())
 const fileType = ref(1)
 const aiEnter = ref(false)
+const connectionState = ref('connecting')
+const pendingMessage = ref('')
+const fallbackSubmitting = ref(false)
+const supportStatus = ref('')
+const supportStatusError = ref(false)
 let formData = null
 const offLeft = ref(null)
 const offTop = ref(null)
@@ -330,6 +340,7 @@ const floatButton = ref(null)
 const rate = ref(6)
 let reconnectTimer
 let shouldReconnect = true
+const connectionLabel = computed(() => ({ connecting: 'Connecting', online: 'Online', offline: 'Reconnecting' }[connectionState.value] || 'Reconnecting'))
 
 function dragenter(e){
   e.preventDefault()
@@ -359,6 +370,7 @@ function even(e){
 
 function StartWebSocket(){
   if (!shouldReconnect) return
+  connectionState.value = 'connecting'
   const socket = new WebSocket(config.public.wssUrl)
   websocket.value = socket
   socket.onopen = () => onOpen(socket)
@@ -369,6 +381,7 @@ function StartWebSocket(){
 
 function scheduleReconnect(socket){
   if (!shouldReconnect || websocket.value !== socket) return
+  connectionState.value = 'offline'
   clearTimeout(reconnectTimer)
   reconnectTimer = setTimeout(StartWebSocket, 1000)
 }
@@ -379,7 +392,20 @@ function sendSocket(message, socket = websocket.value){
   return true
 }
 
+function supportParentOrigin(){
+  try { return document.referrer ? new URL(document.referrer).origin : window.location.origin }
+  catch { return window.location.origin }
+}
+
+function syncUnreadCount(){
+  const count = Math.max(0, Number(chatNum.value) || 0)
+  chatNum.value = count
+  try { window.localStorage.setItem('cod_chat_unread', String(count)) } catch {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'cod:chat-unread', count }, supportParentOrigin())
+}
+
 function onOpen(socket){
+  connectionState.value = 'online'
   const ui = JSON.parse(localStorage.getItem('userInfo') || 'null')
   if(ui){
     Object.assign(userInfo.value, ui)
@@ -389,12 +415,17 @@ function onOpen(socket){
   }else{
     nologinMessage(socket)
   }
+  if (chatOpen.value) {
+    const historyMessage = { type: 'chat_msg_list', from_user_id: (userInfo.value.id || 0), from_service_id: manageNew.id, service_type: 1, order_state: token.value }
+    sendSocket(historyMessage, socket)
+  }
+  if (pendingMessage.value) sendPendingMessage()
 }
 
 function onMessage(e){
   const data = JSON.parse(e.data)
   if(data.type==='init' || data.type==='chat_msg_list' || data.type==='no_login_init'){
-    let list = data.message_list
+    let list = data.message_list || []
     for(let n=0;n<list.length;n++){
       if(list[n].msg_type == 3 || list[n].msg_type == 4){
         list[n].msg = JSON.parse(list[n].msg)
@@ -416,7 +447,9 @@ function onMessage(e){
         list[n].msgx.price_us = (Number(list[n].msgx.min_price)/rate.value).toFixed(2)
       }
     }
-    chatMessage.value = data.message_list || []
+    chatMessage.value = list
+    if (!chatOpen.value) chatNum.value = list.filter((item) => Number(item.is_me) === 0 && Number(item.is_read) === 0).length
+    syncUnreadCount()
     Height()
   }else if(data.type==='chat_msg' && data.msg_type!=13){
     const a = { date_entered: data.date_entered, head_img: (data.head_img || '') + '?v=' + times.value, is_me: data.is_me, is_read: data.is_read, msg: data.msg, nickname: data.nickname, msg_type: data.msg_type }
@@ -437,9 +470,10 @@ function onMessage(e){
       a.msgx.price_us = (Number(a.msgx.min_price)/rate.value).toFixed(2)
       chatOpen.value = true
       chatNum.value = 0
+      syncUnreadCount()
     }
     chatMessage.value.push(a)
-    if(!chatOpen.value && data.is_me===0){ chatNum.value += 1 }
+    if(!chatOpen.value && data.is_me===0){ chatNum.value += 1; syncUnreadCount() }
     Height()
   }
   if(data.msg_type == 13){
@@ -497,6 +531,8 @@ function nologinMessage(socket = websocket.value){
 function chatPanelOpen(){
   chatOpen.value = true
   chatNum.value = 0
+  syncUnreadCount()
+  window.dispatchEvent(new CustomEvent('cod-journey-event', { detail: { eventName: 'support_open', metadata: { channel: 'live_chat' } } }))
   const message = { type: 'chat_msg_list', from_user_id: (userInfo.value.id || 0), from_service_id: manageNew.id, service_type: 1, order_state: token.value }
   sendSocket(message)
 }
@@ -509,7 +545,31 @@ function upload(){ iptFileRef.value.click() }
 function uploads(e){ const files = e.target.files[0]; formData = new FormData(); formData.append('file', files); fileType.value = files.type.indexOf('image')!=-1 ? 1 : 2; tttt() }
 async function tttt(){ const res = await fetch('https://mini.cargosoon.online/api/mini/Login/upload_chat', { method: 'POST', body: formData }); const data = await res.json(); if(data.code==='0'){ const img = data.data.image; const imgs = 'https://mini.cargosoon.online/api' + img.substr(1); if(fileType.value===1){ const message = { type: 'chat_msg', from_user_id: (userInfo.value.id || 0), from_service_id: manageNew.id, service_type: 1, msg_type: 1, msg: imgs, order_state: token.value, client_source: 2 }; sendSocket(message) } else { const msgs = { image: imgs, file_name: data.data.file_name, file_size: data.data.file_size, file_type: data.data.file_type }; const message = { type: 'chat_msg', from_user_id: (userInfo.value.id || 0), from_service_id: manageNew.id, service_type: 1, msg_type: 2, msg: JSON.stringify(msgs), order_state: token.value, client_source: 2 }; sendSocket(message) } } }
 
-function sendMessage(){ const message = { type: 'chat_msg', from_user_id: (userInfo.value.id || 0), from_service_id: manageNew.id, service_type: 1, msg_type: 0, msg: msg.value, order_state: token.value, msg_source_type: 'app', client_source: 2 }; if(sendSocket(message)) msg.value = '' }
+function sendPendingMessage(){ const message = { type: 'chat_msg', from_user_id: (userInfo.value.id || 0), from_service_id: manageNew.id, service_type: 1, msg_type: 0, msg: pendingMessage.value, order_state: token.value, msg_source_type: 'app', client_source: 2 }; if(sendSocket(message)){ window.dispatchEvent(new CustomEvent('cod-journey-event', { detail: { eventName: 'support_message', metadata: { channel: 'live_chat' } } })); pendingMessage.value = ''; msg.value = ''; supportStatus.value = ''; return true } return false }
+async function saveSupportRequest(){
+  if (!pendingMessage.value || fallbackSubmitting.value) return
+  fallbackSubmitting.value = true
+  supportStatus.value = ''
+  supportStatusError.value = false
+  try {
+    const content = `[Support request] Page: ${window.location.pathname} | Message: ${pendingMessage.value}`
+    const response = await submitSupportFeedback({ source: 1, type: window.location.pathname || '/', content, severity_level: 2, images: [] })
+    if (Number(response?.data?.code) !== 0) throw new Error(response?.data?.msg || 'Unable to save support request')
+    chatMessage.value.push({ is_me: 1, msg_type: 0, msg: pendingMessage.value, nickname: userInfo.value.nickname || userInfo.value.email || 'You', head_img: userInfo.value.head_img || '', date_entered: new Date().toLocaleString() })
+    pendingMessage.value = ''
+    msg.value = ''
+    supportStatus.value = 'Support request saved. You can follow it in Feedback Center.'
+    window.dispatchEvent(new CustomEvent('cod-journey-event', { detail: { eventName: 'support_message', metadata: { channel: 'support_request' } } }))
+    Height()
+  } catch (error) {
+    supportStatusError.value = true
+    supportStatus.value = error?.message || 'Unable to save support request. Please retry.'
+  } finally {
+    fallbackSubmitting.value = false
+  }
+}
+async function sendMessage(){ if(!msg.value.trim()) return; pendingMessage.value = msg.value.trim(); if (!sendPendingMessage()) await saveSupportRequest() }
+function retryConnection(){ clearTimeout(reconnectTimer); if(websocket.value) websocket.value.close(); StartWebSocket() }
 function listenKey(){ msg.value = msg.value + '\n' }
 
 function toWhatsApp(){ let chat_info; const ui = JSON.parse(localStorage.getItem('userInfo') || 'null'); if(ui){ chat_info = ui.manage } else { const ci = JSON.parse(localStorage.getItem('chat_info') || '{}'); chat_info = ci.manage } if(chat_info){ let num = chat_info.whatsappp || ''; if(num.indexOf('+')===-1) num = '+86' + num; const text = `Hello, ${chat_info.englishname}`; window.open('https://api.whatsapp.com/send?phone=' + num + '&text=' + encodeURIComponent(text), '_blank') } }
@@ -534,9 +594,15 @@ function chatPro(){
 
 defineExpose({ chatPro, chatPanelOpen });
 
+function handleSupportStorage(event){ if(event.key === 'cod_open_support') chatPanelOpen() }
+function handleSupportMessage(event){ if(event.origin === supportParentOrigin() && event.data?.type === 'cod:open-support') chatPanelOpen() }
+
 async function fetchRate(){
-  const rez = await getRate()
-  rate.value = rez.data.data.exchange_rate
+  try {
+    const rez = await getRate()
+    const exchangeRate = Number(rez?.data?.data?.exchange_rate)
+    if (exchangeRate > 0) rate.value = exchangeRate
+  } catch {}
 }
 
 onMounted(async ()=>{
@@ -544,6 +610,7 @@ onMounted(async ()=>{
   if (new URLSearchParams(window.location.search).get('support') === 'chat') {
     chatOpen.value = true
     chatNum.value = 0
+    syncUnreadCount()
   }
   fetchRate()
   const ui = JSON.parse(localStorage.getItem('userInfo') || 'null')
@@ -568,6 +635,11 @@ onMounted(async ()=>{
   screenWidth.value = window.innerWidth - 72;
   screenHeight.value = window.innerHeight - 56;
   document.addEventListener('click', even, true)
+  window.addEventListener('cod-open-support', chatPanelOpen)
+  window.addEventListener('storage', handleSupportStorage)
+  window.addEventListener('message', handleSupportMessage)
+  syncUnreadCount()
+  if (window.parent !== window) window.parent.postMessage({ type: 'cod:chat-ready' }, supportParentOrigin())
 })
 
 onUnmounted(()=>{
@@ -575,11 +647,17 @@ onUnmounted(()=>{
   clearTimeout(reconnectTimer)
   if (websocket.value) websocket.value.close()
   document.removeEventListener('click', even, true) 
+  window.removeEventListener('cod-open-support', chatPanelOpen)
+  window.removeEventListener('storage', handleSupportStorage)
+  window.removeEventListener('message', handleSupportMessage)
 })
 </script>
 
 <style scoped>
 #co-chatmini{ box-shadow: 0 0 6px 0 #0000004d }
+.chat-avatar-fallback{width:3rem;height:3rem;display:grid;place-items:center;border-radius:999px;background:#e85524;color:#fff;font-size:14px;font-weight:800}
+.chat-connection{display:flex;align-items:center;gap:5px;margin-top:4px;color:#6b7280;font-size:11px}.chat-connection span{width:7px;height:7px;border-radius:50%;background:#f59e0b}.chat-connection.online{color:#287a50}.chat-connection.online span{background:#34a36f}.chat-connection.offline{color:#a3472c}.chat-connection.offline span{background:#e66b42}.chat-offline{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;background:#fff4ed;color:#8e3c22;font-size:12px}.chat-offline button{border:0;background:transparent;color:#b9471f;font-weight:800;text-decoration:underline;cursor:pointer}
+.support-status{padding:8px 12px;background:#eaf5ee;color:#226d49;font-size:12px}.support-status.error{background:#fff0ea;color:#983d20}
 </style>
 
 <style>

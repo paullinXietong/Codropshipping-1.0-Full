@@ -101,7 +101,7 @@
           <tbody>
             <tr v-for="order in orders" :key="orderKey(order)">
               <td>
-                <button class="order-number" type="button" @click="selectedOrder = order">{{ orderNumber(order) }}</button>
+                <button class="order-number" type="button" @click="openOrder(order)">{{ orderNumber(order) }}</button>
                 <span class="status-badge">{{ activeStatus.label }}</span>
               </td>
               <td class="item-cell">
@@ -122,7 +122,7 @@
                 <small>{{ money(shippingCost(order)) }}</small>
               </td>
               <td>{{ dateLabel(order) }}</td>
-              <td class="action-column"><button class="review-action" type="button" @click="selectedOrder = order">{{ $t('orders.review') }}</button></td>
+              <td class="action-column"><button class="review-action" type="button" @click="openOrder(order)">{{ $t('orders.review') }}</button></td>
             </tr>
           </tbody>
         </table>
@@ -180,13 +180,25 @@
         <div><dt>{{ $t('orders.shipping') }}</dt><dd>{{ shippingName(selectedOrder) }}</dd></div>
         <div><dt>{{ $t('orders.created') }}</dt><dd>{{ dateLabel(selectedOrder) }}</dd></div>
       </dl>
+      <template v-if="selectedStatus === 1">
+      <section class="drawer-workflow">
+        <h3>{{ $t('orders.customerAndDelivery') }}</h3>
+        <div class="drawer-form two-columns"><label><span>{{ $t('orders.firstName') }}</span><input v-model.trim="actionForm.first_name" /></label><label><span>{{ $t('orders.lastName') }}</span><input v-model.trim="actionForm.last_name" /></label></div>
+        <div class="drawer-form"><label><span>{{ $t('orders.addressLine') }}</span><input v-model.trim="actionForm.address1" /></label><label><span>{{ $t('orders.city') }}</span><input v-model.trim="actionForm.city" /></label><div class="two-columns"><label><span>{{ $t('orders.province') }}</span><input v-model.trim="actionForm.province" /></label><label><span>{{ $t('orders.postcode') }}</span><input v-model.trim="actionForm.zip" /></label></div><label><span>{{ $t('orders.country') }}</span><input v-model.trim="actionForm.country" /></label><label><span>{{ $t('orders.phone') }}</span><input v-model.trim="actionForm.phone" /></label></div>
+        <button class="workflow-secondary" type="button" :disabled="actionLoading" @click="saveAddress">{{ $t('orders.saveAddress') }}</button>
+      </section>
+      <section class="drawer-workflow"><h3>{{ $t('orders.orderNote') }}</h3><textarea v-model.trim="actionForm.remark" rows="3" :placeholder="$t('orders.orderNotePlaceholder')"></textarea><button class="workflow-secondary" type="button" :disabled="actionLoading" @click="saveRemark">{{ $t('orders.saveNote') }}</button></section>
+      <section class="drawer-workflow"><h3>{{ $t('orders.shipping') }}</h3><button v-if="!shippingMethods.length" class="workflow-secondary" type="button" :disabled="actionLoading" @click="loadShippingMethods">{{ $t('orders.loadShipping') }}</button><template v-else><select v-model="actionForm.shippingId"><option v-for="method in shippingMethods" :key="method.id" :value="String(method.id)">{{ method.shipping_method || method.name }} · {{ money(method.freight || method.price) }}</option></select><button class="workflow-secondary" type="button" :disabled="actionLoading || !actionForm.shippingId" @click="saveShipping">{{ $t('orders.saveShipping') }}</button></template></section>
+      <p v-if="actionMessage" class="workflow-message" :class="{ error: actionError }">{{ actionMessage }}</p>
+      <button class="workflow-primary" type="button" :disabled="actionLoading" @click="confirmFulfillment">{{ actionLoading ? $t('orders.working') : $t('orders.startFulfillment') }}</button>
+      </template>
       <router-link class="drawer-action" to="/workspace/fulfillment">{{ $t('orders.openFulfillment') }}<i class="el-icon-right"></i></router-link>
     </aside>
   </main>
 </template>
 
 <script>
-import { getOrderList, syncOrder } from '@/api/dropshipping'
+import { getOrderList, syncOrder, editRemark, editAddress, getShippingMethod, changeShippingMethod, fulfillment } from '@/api/dropshipping'
 import { storeList } from '@/api/user'
 
 export default {
@@ -208,6 +220,11 @@ export default {
       query: '',
       syncDialog: false,
       selectedOrder: null,
+      actionLoading: false,
+      actionError: false,
+      actionMessage: '',
+      shippingMethods: [],
+      actionForm: { first_name: '', last_name: '', address1: '', city: '', province: '', zip: '', country: '', phone: '', email: '', remark: '', shippingId: '' },
     }
   },
   computed: {
@@ -297,6 +314,17 @@ export default {
         this.syncing = false
       }
     },
+    openOrder(order) {
+      this.selectedOrder = order; this.actionMessage = ''; this.actionError = false; this.shippingMethods = []
+      const address = order.address || order.shipping_address || {}
+      this.actionForm = { first_name: address.first_name || address.firstName || order.first_name || '', last_name: address.last_name || address.lastName || order.last_name || '', address1: address.address1 || address.address_one || order.address1 || '', city: address.city || order.city || '', province: address.province || address.area || order.province || '', zip: address.zip || address.zipcode || order.zip || '', country: address.country || order.country || '', phone: address.phone || address.tel || order.phone || '', email: address.email || order.email || '', remark: order.local_order_remark || order.remark || '', shippingId: String(order.price_control_id || '') }
+    },
+    async runAction(request, successText, reload = false) { this.actionLoading = true; this.actionError = false; this.actionMessage = ''; try { const response = await request(); if (Number(response?.code) !== 0) throw new Error(response?.msg || this.$t('orders.actionFailed')); this.actionMessage = successText; if (reload) await this.loadOrders(this.page, false) } catch (error) { this.actionError = true; this.actionMessage = error?.message || this.$t('orders.actionFailed') } finally { this.actionLoading = false } },
+    saveAddress() { const id = this.selectedOrder?.id; if (!id) return; const { first_name, last_name, address1, city, province, zip, country, phone, email } = this.actionForm; this.runAction(() => editAddress({ id, first_name, last_name, address1, address2: '', city, province, zip, country, phone, email }), this.$t('orders.addressSaved')) },
+    saveRemark() { const id = this.selectedOrder?.id; if (!id) return; this.runAction(() => editRemark({ id, local_order_remark: this.actionForm.remark }), this.$t('orders.noteSaved')) },
+    async loadShippingMethods() { if (!this.selectedOrder?.id) return; this.actionLoading = true; this.actionError = false; this.actionMessage = ''; try { const response = await getShippingMethod({ id: this.selectedOrder.id, weight: this.selectedOrder.weight || this.selectedOrder.total_weight || 0 }); if (Number(response?.code) !== 0) throw new Error(response?.msg); this.shippingMethods = response?.data?.shipping_method || response?.data?.list || response?.data || []; if (!Array.isArray(this.shippingMethods)) this.shippingMethods = []; if (!this.actionForm.shippingId && this.shippingMethods[0]) this.actionForm.shippingId = String(this.shippingMethods[0].id) } catch (error) { this.actionError = true; this.actionMessage = error?.message || this.$t('orders.actionFailed') } finally { this.actionLoading = false } },
+    saveShipping() { const id = this.selectedOrder?.id; if (!id || !this.actionForm.shippingId) return; this.runAction(() => changeShippingMethod({ id, price_control_id: this.actionForm.shippingId }), this.$t('orders.shippingSaved')) },
+    confirmFulfillment() { const id = this.selectedOrder?.id; if (!id || !window.confirm(this.$t('orders.fulfillmentConfirm'))) return; this.runAction(() => fulfillment({ ids: [id] }), this.$t('orders.fulfillmentStarted'), true) },
     storeName(store) { return store.store_name || store.shop_name || store.name || this.$t('orders.shopify') },
     orderKey(order) { return order.id || order.order_number || order.orderNumber || JSON.stringify(order).slice(0, 100) },
     orderNumber(order) { return order.order_number || order.orderNumber || order.shopify_order_number || this.$t('operations.unnamedOrder') },
@@ -348,6 +376,7 @@ button, input, select { font: inherit; }.primary-action, .secondary-action, .fil
 .empty-state { min-height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }.empty-state > i { color: #d94f20; font-size: 36px; }.empty-state h2 { margin: 17px 0 7px; font-size: 22px; }.empty-state p { max-width: 520px; margin: 0 0 21px; color: #6b746d; line-height: 1.5; }.pagination-bar { min-height: 62px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-top: 1px solid #dfe4df; color: #69726a; font-size: 13px; }.pagination-bar div { display: flex; align-items: center; gap: 13px; }.pagination-bar button { width: 36px; height: 36px; border: 1px solid #d5dbd5; border-radius: 8px; background: #fff; color: #3e4740; cursor: pointer; }.pagination-bar strong { min-width: 56px; color: #343c36; text-align: center; }
 .dialog-layer { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 20px; background: rgba(24,31,26,.42); }.sync-dialog { position: relative; width: min(500px,100%); padding: 28px; border: 1px solid #d7ddd7; border-radius: 12px; background: #fff; box-shadow: 0 24px 70px rgba(24,31,26,.22); }.dialog-close, .drawer-close { position: absolute; top: 18px; right: 18px; width: 38px; height: 38px; border: 1px solid #d7ddd7; border-radius: 8px; background: #fff; color: #424b44; cursor: pointer; }.dialog-label, .drawer-label { color: #a84520; font-size: 13px; font-weight: 900; }.sync-dialog h2 { margin: 8px 48px 7px 0; font-size: 25px; }.sync-dialog > p { margin: 0 0 22px; color: #687169; line-height: 1.5; }.dialog-error { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: #fff0eb; color: #8d3c20; font-size: 13px; }.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
 .order-drawer { position: fixed; top: 72px; right: 0; z-index: 30; width: min(430px,100vw); height: calc(100dvh - 72px); padding: 30px; overflow-y: auto; border-left: 1px solid #d7ddd7; background: #fff; box-shadow: -18px 0 45px rgba(28,39,31,.12); }.order-drawer h2 { margin: 9px 48px 5px 0; font-size: 26px; }.order-drawer > p { color: #687169; line-height: 1.45; }.order-drawer dl { margin: 28px 0 0; }.order-drawer dl > div { display: grid; grid-template-columns: 120px minmax(0,1fr); gap: 14px; padding: 14px 0; border-bottom: 1px solid #e3e7e3; }.order-drawer dt { color: #778078; font-size: 13px; }.order-drawer dd { margin: 0; color: #313a33; font-size: 14px; font-weight: 700; word-break: break-word; }.drawer-action { min-height: 46px; display: flex; align-items: center; justify-content: space-between; margin-top: 18px; color: #a84520; font-weight: 850; }
+.drawer-workflow{margin-top:22px;padding-top:20px;border-top:1px solid #e1e5e1}.drawer-workflow h3{margin:0 0 13px;font-size:16px}.drawer-form{display:grid;gap:10px}.drawer-form.two-columns,.drawer-form .two-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px}.drawer-form label,.drawer-workflow label{display:grid;gap:6px;color:#657067;font-size:12px;font-weight:800}.drawer-workflow input,.drawer-workflow select,.drawer-workflow textarea{width:100%;min-height:40px;padding:8px 10px;border:1px solid #d4dad4;border-radius:7px;background:#fff;color:#29312b;font:inherit;box-sizing:border-box}.drawer-workflow textarea{resize:vertical}.workflow-secondary,.workflow-primary{width:100%;min-height:40px;margin-top:11px;border-radius:8px;font-weight:800;cursor:pointer}.workflow-secondary{border:1px solid #ccd3cc;background:#fff;color:#343c36}.workflow-primary{border:0;background:#d94f20;color:#fff}.workflow-message{margin:16px 0 0;padding:11px;border-radius:8px;background:#eaf4ed;color:#26704e;font-size:13px}.workflow-message.error{background:#fff0ea;color:#943c20}
 @media (max-width: 1100px) { .summary-strip { grid-template-columns: repeat(2,1fr); }.summary-strip article:nth-child(2) { border-right: 0; }.summary-strip article:nth-child(-n+2) { border-bottom: 1px solid #e2e6e2; }.filter-bar { grid-template-columns: 1fr 1fr auto; }.reset-action { grid-column: 1 / -1; justify-self: start; } }
 @media (max-width: 720px) { .orders-page { padding: 25px 16px 48px; }.page-header { display: block; }.page-subtitle { font-size: 16px; }.header-actions { margin-top: 18px; }.summary-strip { grid-template-columns: 1fr; }.summary-strip article { min-height: 96px; border-right: 0; border-bottom: 1px solid #e2e6e2; }.summary-strip article:last-child { border-bottom: 0; }.filter-bar { grid-template-columns: 1fr; }.reset-action { grid-column: auto; }.order-drawer { top: 0; height: 100dvh; }.pagination-bar { align-items: flex-start; gap: 14px; padding: 15px 16px; }.dialog-actions { flex-direction: column-reverse; }.dialog-actions button { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }

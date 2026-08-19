@@ -145,6 +145,12 @@ const routes = [
         component: () => import("../views/workspace/Cart.vue"),
       },
       {
+        path: "/workspace/checkout",
+        name: "workspace-checkout",
+        meta: { title: "Checkout - CoDropshipping" },
+        component: () => import("../views/workspace/Checkout.vue"),
+      },
+      {
         path: "/workspace/orders",
         name: "workspace-orders",
         meta: { title: "Orders - CoDropshipping" },
@@ -555,11 +561,10 @@ const routes = [
       },
       {
         path: "/order",
-        name: "orderInfo",
+        redirect: (to) => ({ path: '/workspace/checkout', query: to.query }),
         meta:{
           title:'Order Info - CoDropshipping'
-        },
-        component: () => import("../views/account/order/create_new.vue"),
+        }
       },
       {
         path: "/account/orderDetails",

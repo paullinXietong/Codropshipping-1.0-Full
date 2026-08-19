@@ -23,7 +23,7 @@ services:
     ports:
       - "${COD_HTTP_PORT:-80}:8080"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/ >/dev/null && wget -qO- http://127.0.0.1:8080/admin/ >/dev/null && grep -q '<div id=\"app\"></div>' /usr/share/nginx/html/admin/index.html"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/ >/dev/null && wget -qO- http://127.0.0.1:8080/admin/main/dashboard >/dev/null"]
       interval: 20s
       timeout: 6s
       start_period: 25s
@@ -42,6 +42,7 @@ services:
       LISTING_DB_PATH: /app/data/listings.sqlite
       COD_API_BASE_URL: ${COD_API_BASE_URL:-https://codropshipping.com/api}
       COD_IDENTITY_PATH: ${COD_IDENTITY_PATH:-/customer/api/user/home/info}
+      COD_API_TIMEOUT_MS: ${COD_API_TIMEOUT_MS:-15000}
       QWEN_API_KEY: ${QWEN_API_KEY:?Set QWEN_API_KEY in the server environment}
       QWEN_BASE_URL: ${QWEN_BASE_URL:?Set QWEN_BASE_URL in the server environment}
       QWEN_NATIVE_BASE_URL: ${QWEN_NATIVE_BASE_URL:-}
@@ -49,6 +50,8 @@ services:
       QWEN_IMAGE_MODEL: ${QWEN_IMAGE_MODEL:-qwen-image-2.0-pro}
       LISTING_ALLOWED_ORIGINS: ${LISTING_ALLOWED_ORIGINS:?Set LISTING_ALLOWED_ORIGINS to the public HTTPS origin}
       PUBLIC_TRANSLATION_RATE_LIMIT_PER_MINUTE: ${PUBLIC_TRANSLATION_RATE_LIMIT_PER_MINUTE:-30}
+      PUBLIC_JOURNEY_RATE_LIMIT_PER_MINUTE: ${PUBLIC_JOURNEY_RATE_LIMIT_PER_MINUTE:-90}
+      SALES_WORKSPACE_TOKEN: ${SALES_WORKSPACE_TOKEN:?Set SALES_WORKSPACE_TOKEN for the internal sales desk}
     volumes:
       - listing_data:/app/data
       - listing_backups:/app/backups

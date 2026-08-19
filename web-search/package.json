@@ -28,5 +28,8 @@
   "devDependencies": {
     "dotenv-cli": "^7.4.2",
     "sass": "^1.94.2"
+  },
+  "overrides": {
+    "nanoid": "3.3.18"
   }
 }

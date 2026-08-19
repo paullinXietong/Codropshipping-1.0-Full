@@ -24,7 +24,7 @@ export function setContentLanguage(value) {
   document.cookie = `${key}=${encodeURIComponent(safeValue)};path=/;max-age=31536000;samesite=lax`
   document.documentElement.lang = safeValue
   document.documentElement.dir = safeValue === 'ar-SA' ? 'rtl' : 'ltr'
-  import('@/i18n/workspace').then(({ setWorkspaceLocale }) => setWorkspaceLocale(safeValue))
+  import('../i18n/workspace.js').then(({ setWorkspaceLocale }) => setWorkspaceLocale(safeValue))
   window.dispatchEvent(new CustomEvent('cod-content-language-change', { detail: safeValue }))
   return safeValue
 }

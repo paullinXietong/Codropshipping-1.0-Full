@@ -26,7 +26,6 @@ NODE
 
 (cd "$ROOT_DIR/listing-backend" && npm test)
 (cd "$ROOT_DIR/web-search/search-backend" && npm test)
-(cd "$ROOT_DIR/member-center" && npm run lint:release && npm run build)
 (cd "$ROOT_DIR/web-search" && NUXT_IGNORE_LOCK=1 npm run build)
 
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then

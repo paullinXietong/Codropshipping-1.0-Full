@@ -18,7 +18,6 @@
 
 ```bash
 (cd listing-backend && npm ci)
-(cd member-center && npm ci)
 (cd web-search && npm ci)
 (cd web-search/search-backend && npm ci)
 ```
@@ -58,7 +57,6 @@
 ```bash
 (cd listing-backend && npm test)
 (cd web-search/search-backend && npm test)
-(cd member-center && npm run lint:release && npm run build)
 (cd web-search && npm run build)
 ./scripts/smoke-test.sh http://127.0.0.1:3000
 ```

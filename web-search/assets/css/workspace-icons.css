@@ -1,0 +1,22 @@
+i[class*='el-icon-'] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+i[class*='el-icon-'] > svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+i.el-icon-loading > svg {
+  animation: cod-icon-spin 0.9s linear infinite;
+}
+
+@keyframes cod-icon-spin {
+  to { transform: rotate(360deg); }
+}

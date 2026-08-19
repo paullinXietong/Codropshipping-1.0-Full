@@ -19,12 +19,7 @@ server {
   }
 
   location = /admin {
-    return 308 /admin/;
-  }
-
-  location /admin/ {
-    root /usr/share/nginx/html;
-    try_files $uri $uri/ /admin/index.html;
+    return 308 /admin/main/dashboard;
   }
 
   location /listing-api/ {

@@ -4,10 +4,11 @@
 
 ## 目录
 
-- `web-search/`：Nuxt 官网、浏览选品、商品详情、搜索后端与统一 UI Docker 配置。
-- `member-center/`：统一客户工作台，包含登录、AI 刊登、渠道、订单、履约、库存、财务和洞察。
-- `listing-backend/`：本地刊登编排服务，负责草稿、AI 建议、审阅记录与幂等发布。
+- `web-search/`：统一的 Nuxt 3 / Vue 3 官网与客户工作台、商品搜索后端和单一 UI Docker 配置。
+- `member-center/src/`：客户工作台业务页面源码，由 Nuxt 3 直接编译；生产环境不再构建或运行 Vue 2 应用。
+- `listing-backend/`：本地刊登编排服务，负责草稿、AI 建议、审阅记录、幂等发布，以及首访/回访/高意向客户线索。
 - `start-local-demo.sh`：同时启动官网、会员中心、搜索代理和刊登编排服务。
+- `scripts/deploy-production.sh`：供 IT 使用的生产一键验证、构建与启动入口。
 - `scripts/build-release-package.sh`：生成不含密钥、数据库、依赖和构建缓存的 1.0 完整发布包。
 
 依赖目录、构建缓存、日志和真实环境变量未包含在源码包中。
@@ -36,15 +37,13 @@ npm start
 
 搜索服务地址：`http://127.0.0.1:8788/health`
 
-### 3. 会员中心
+### 3. 客户工作台
 
-```bash
-cd member-center
-npm ci
-npm run serve -- --host 127.0.0.1 --port 8083
-```
+客户工作台已经合并进官网 Vue 3 进程。启动 `web-search` 后直接访问：`http://127.0.0.1:3000/admin/login`。
 
-登录页面：`http://127.0.0.1:3000/admin/login`
+### 4. 销售线索工作台
+
+设置 `SALES_WORKSPACE_TOKEN` 后访问 `http://127.0.0.1:3000/internal/sales-leads`。该入口不会显示在客户导航中，记录首访、回访和高意向动作，并支持负责人、跟进状态、下次跟进时间和备注。
 
 ## 验证
 

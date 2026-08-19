@@ -241,30 +241,6 @@
         </div>
       </section>
 
-      <section class="result-toolbar">
-        <div>
-          <p class="result-count">{{ loading ? 'Finding products...' : `${formatCompactNumber(totalNum || productList.length)} products found` }}</p>
-          <p class="result-context">
-            Results for <strong>{{ keywordDisplay || 'image search' }}</strong>
-            <span v-if="backendMode === 'fallback'"> · live catalog</span>
-          </p>
-        </div>
-        <div class="toolbar-actions">
-          <label>
-            Sort by
-            <select v-model="sortKey" @change="changeSort">
-              <option value="relevance">Relevance</option>
-              <option value="monthSold_desc">Monthly sales</option>
-              <option value="price_asc">Price: low to high</option>
-              <option value="price_desc">Price: high to low</option>
-            </select>
-          </label>
-          <button type="button" class="view-toggle active" aria-label="Grid view">
-            <svg viewBox="0 0 20 20"><path d="M2 2h6v6H2V2Zm10 0h6v6h-6V2ZM2 12h6v6H2v-6Zm10 0h6v6h-6v-6Z" /></svg>
-          </button>
-        </div>
-      </section>
-
       <section class="results-surface">
         <div v-if="loading" class="product-grid" aria-label="Loading products">
           <div v-for="idx in skeletonItems" :key="idx" class="skeleton-card">
@@ -1355,7 +1331,6 @@ onBeforeUnmount(() => {
 
 .image-search-context,
 .filter-console,
-.result-toolbar,
 .results-surface {
   border: 1px solid #e3e5e8;
   background: #fff;
@@ -1815,66 +1790,6 @@ onBeforeUnmount(() => {
   font-weight: 800;
 }
 
-.result-toolbar {
-  display: flex;
-  min-height: 62px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-top: 10px;
-  border-radius: 10px;
-  padding: 10px 14px 10px 17px;
-}
-
-.result-count {
-  margin: 0;
-  color: #202328;
-  font-size: 15px;
-  font-weight: 750;
-}
-
-.result-context {
-  margin: 3px 0 0;
-  color: #8a8f96;
-  font-size: 11px;
-}
-
-.toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.toolbar-actions label {
-  color: #8a8f96;
-  font-size: 11px;
-}
-
-.toolbar-actions select {
-  height: 34px;
-  margin-left: 6px;
-  border: 1px solid #d9dde2;
-  border-radius: 6px;
-  background: #fff;
-  padding: 0 30px 0 9px;
-  color: #34383e;
-  font-size: 12px;
-}
-
-.view-toggle {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border: 1px solid #d9dde2;
-  border-radius: 6px;
-}
-
-.view-toggle svg {
-  width: 14px;
-  fill: #ff6e1f;
-}
-
 .results-surface {
   margin-top: 10px;
   border-radius: 10px;
@@ -2307,7 +2222,6 @@ onBeforeUnmount(() => {
 @media (max-width: 680px) {
   .search-shell { width: 100%; padding-top: 8px; }
   .filter-console,
-  .result-toolbar,
   .results-surface { border-right: 0; border-left: 0; border-radius: 0; }
   .filter-topline { padding: 8px 10px; }
   .filter-buttons { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
@@ -2315,9 +2229,6 @@ onBeforeUnmount(() => {
   .category-popover { width: auto; }
   .category-groups { grid-template-columns: 1fr; }
   .empty-selection span:last-child { display: none; }
-  .result-toolbar { align-items: flex-start; }
-  .toolbar-actions label { font-size: 0; }
-  .toolbar-actions select { margin: 0; font-size: 11px; }
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
   .results-surface { padding: 7px; }
   .product-media { aspect-ratio: 1; }

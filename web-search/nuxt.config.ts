@@ -49,6 +49,7 @@ export default defineNuxtConfig({
   plugins: [
     '~/plugins/element-plus.client.ts'
   ],
+  css: ['~/assets/css/workspace-icons.css'],
   tailwindcss: {
     cssPath: '~/assets/css/tailwind.css'
   },
@@ -56,14 +57,8 @@ export default defineNuxtConfig({
   vite: {
     server: {
       proxy: {
-        // Keep the legacy storefront and member center on one local origin.
-        // codropshipping-serve is mounted at /admin/ in production as well.
-        '/admin': {
-          target: process.env.NUXT_DEV_ADMIN_TARGET || 'http://127.0.0.1:8083',
-          changeOrigin: true,
-          ws: true
-        },
-        // The Vue 2 member center calls the backend through a same-origin /api URL.
+        // Storefront and customer workspace run in this Nuxt/Vue 3 process.
+        // Only business APIs are proxied during local development.
         '/api': {
           target: process.env.NUXT_DEV_API_TARGET || 'https://codropshipping.com',
           changeOrigin: true,

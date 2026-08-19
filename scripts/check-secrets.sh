@@ -14,7 +14,18 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     echo "Potential credential found in tracked source. Remove it and rotate the credential." >&2
     exit 1
   fi
-  echo "Tracked-source secret scan passed."
+  UNTRACKED_RESULT=$(git ls-files --others --exclude-standard | while IFS= read -r file; do
+    if [ "${file##*/}" = "package-lock.json" ] || [ "$file" = "scripts/check-secrets.sh" ]; then
+      continue
+    fi
+    grep -I -H -n -E "$PATTERN" "$file" 2>/dev/null || true
+  done)
+  if [ -n "$UNTRACKED_RESULT" ]; then
+    printf '%s\n' "$UNTRACKED_RESULT"
+    echo "Potential credential found in untracked release source. Remove it and rotate the credential." >&2
+    exit 1
+  fi
+  echo "Tracked and untracked release-source secret scan passed."
 else
   if grep -R -I -n -E "$PATTERN" . \
     --exclude='package-lock.json' \

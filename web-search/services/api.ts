@@ -131,6 +131,7 @@ export function getImgId(data:any){ return createAxios().post('/shipping/Goods/P
 export function searchImg(data:any){ return createAxios().post('/shipping/Goods/ProductSearchImageQueryParam', data) }
 export function getInfo(data:any){ return createAxios().post('/customer/api/polymerization/getUserInfoFromCode', data) }
 export function getRate(data?:any){ return createAxios().post('/shipping/Order/getExchangeRate', data) }
+export function submitSupportFeedback(data:any){ return createAxios().post('/shipping/Feedback/submit', data) }
 export function getCountry(data:any){ return createAxios().post('/customer/api/polymerization/get_sel', data) }
 export function getPrice(data:any){ return createAxios().post('/customer/api/polymerization/get_logistics_price', data) }
 export function getWeght(params:any){ return createAxios().get('https://gsa.bi.gobizdev.com/item/get_weight', { params }) }

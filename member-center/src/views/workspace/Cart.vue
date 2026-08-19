@@ -155,7 +155,8 @@ export default {
     },
     checkout() {
       if (!this.selectedIds.length) { this.actionMessage = this.$t('cart.selectFirst'); return }
-      this.$router.push({ path: '/order', query: { cartIds: this.selectedIds.join(',') } })
+      window.dispatchEvent(new CustomEvent('cod-journey-event', { detail: { eventName: 'checkout_start' } }))
+      this.$router.push({ path: '/workspace/checkout', query: { cartIds: this.selectedIds.join(',') } })
     },
   },
 }

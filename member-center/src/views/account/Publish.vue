@@ -293,7 +293,7 @@ export default {
     window.addEventListener('cod-content-language-change', this.handleGlobalLanguageChange)
     this.initialize()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('cod-content-language-change', this.handleGlobalLanguageChange)
     this.$emit('hiddenChat', true)
   },

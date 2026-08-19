@@ -43,7 +43,7 @@
 
           <div class="w-full px-3 py-4 text-sm">
             <div class="my-12">
-              <h1 class="font-semibold text-center text-2xl sm:h-8 sm:text-[42px]">1688 Sourcing • Factory Direct • Low Cost</h1>
+              <h1 class="mx-auto max-w-[1240px] font-semibold text-center text-2xl leading-tight sm:text-[38px] lg:text-[42px]">Dropshipping &amp; 1688 Sourcing • Factory Direct • Lower Costs</h1>
             </div>
             <div class="mx-auto max-w-screen-md w-full bg-white px-6 py-3 flex rounded-full border-4 border-black relative">
               <div class="w-full flex items-center">

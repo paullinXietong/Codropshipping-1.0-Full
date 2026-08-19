@@ -9,6 +9,7 @@ import { persistGeneratedImage } from './media.js'
 import { stableIdentityFromPayload, stableIdentityFromToken } from './identity.js'
 import { extractExternalProductId, matchingPublishedProduct } from './publish-result.js'
 import { createFixedWindowRateLimiter, requestClientKey } from './rate-limit.js'
+import { createLeadOperations, installLeadSchema } from './leads.js'
 
 const port = Number(process.env.PORT || 8789)
 const dbPath = resolve(process.env.LISTING_DB_PATH || './data/listings.sqlite')
@@ -16,9 +17,12 @@ const codApiBaseUrl = process.env.COD_API_BASE_URL || 'https://codropshipping.co
 const identityPath = process.env.COD_IDENTITY_PATH || '/customer/api/user/home/info'
 const production = process.env.NODE_ENV === 'production'
 const publicTranslationRateLimit = Math.max(1, Number(process.env.PUBLIC_TRANSLATION_RATE_LIMIT_PER_MINUTE || 30))
+const publicJourneyRateLimit = Math.max(1, Number(process.env.PUBLIC_JOURNEY_RATE_LIMIT_PER_MINUTE || 90))
+const salesWorkspaceToken = String(process.env.SALES_WORKSPACE_TOKEN || (production ? '' : 'cod-sales-local')).trim()
 const allowedOrigins = new Set(String(process.env.LISTING_ALLOWED_ORIGINS || (production ? '' : 'http://127.0.0.1:3000,http://localhost:3000'))
   .split(',').map((value) => value.trim()).filter(Boolean))
 const translationRateLimiter = createFixedWindowRateLimiter({ limit: publicTranslationRateLimit, windowMs: 60_000 })
+const journeyRateLimiter = createFixedWindowRateLimiter({ limit: publicJourneyRateLimit, windowMs: 60_000 })
 
 if (production && !allowedOrigins.size) throw new Error('LISTING_ALLOWED_ORIGINS is required in production')
 if (production && !hasQwenTextConfig()) throw new Error('QWEN_API_KEY and QWEN_BASE_URL are required in production')
@@ -109,6 +113,8 @@ db.exec(`
     PRIMARY KEY(source_hash, target_language)
   );
 `)
+installLeadSchema(db)
+const leadOperations = createLeadOperations(db)
 
 // A process restart interrupts in-flight model requests. Mark those rows as
 // failed so the client can retry instead of showing a permanent loading state.
@@ -149,15 +155,55 @@ function tokenFrom(request) {
   return String(header).replace(/^Bearer\s+/i, '').trim()
 }
 
+function authenticateSales(request) {
+  if (!salesWorkspaceToken) {
+    throw Object.assign(new Error('Sales workspace access is not configured'), { status: 503, code: 'SALES_WORKSPACE_NOT_CONFIGURED' })
+  }
+  const supplied = String(request.headers['x-sales-token'] || '').trim()
+  if (!supplied || createHash('sha256').update(supplied).digest('hex') !== createHash('sha256').update(salesWorkspaceToken).digest('hex')) {
+    throw Object.assign(new Error('Internal sales access is required'), { status: 401, code: 'SALES_AUTH_REQUIRED' })
+  }
+}
+
+async function handleSalesRoute(request, response, url) {
+  authenticateSales(request)
+  if (request.method === 'GET' && url.pathname === '/v1/sales/summary') {
+    return json(response, 200, { data: leadOperations.summary() })
+  }
+  if (request.method === 'GET' && url.pathname === '/v1/sales/leads') {
+    return json(response, 200, { data: leadOperations.list({
+      status: url.searchParams.get('status') || '',
+      temperature: url.searchParams.get('temperature') || '',
+      query: url.searchParams.get('query') || '',
+    }) })
+  }
+  if (request.method === 'GET' && url.pathname === '/v1/sales/notifications') {
+    return json(response, 200, { data: leadOperations.notifications() })
+  }
+  const leadMatch = url.pathname.match(/^\/v1\/sales\/leads\/([^/]+)(?:\/(notes|read))?$/)
+  if (leadMatch) {
+    const id = decodeURIComponent(leadMatch[1])
+    if (request.method === 'GET' && !leadMatch[2]) return json(response, 200, { data: leadOperations.detail(id) })
+    if (request.method === 'PATCH' && !leadMatch[2]) return json(response, 200, { data: leadOperations.update(id, await readBody(request)) })
+    if (request.method === 'POST' && leadMatch[2] === 'notes') return json(response, 201, { data: leadOperations.addNote(id, await readBody(request)) })
+    if (request.method === 'PATCH' && leadMatch[2] === 'read') return json(response, 200, { data: leadOperations.markLeadNotifications(id) })
+  }
+  const noticeMatch = url.pathname.match(/^\/v1\/sales\/notifications\/([^/]+)\/read$/)
+  if (request.method === 'PATCH' && noticeMatch) return json(response, 200, { data: leadOperations.markNotification(decodeURIComponent(noticeMatch[1])) })
+  return json(response, 404, { error: { code: 'NOT_FOUND', message: 'Sales route not found' } })
+}
+
 async function codRequest(path, token, body) {
   const base = codApiBaseUrl.replace(/\/$/, '')
+  const timeoutMs = Math.max(3000, Number(process.env.COD_API_TIMEOUT_MS || 15000))
   const response = await fetch(`${base}/${String(path).replace(/^\//, '')}`, {
     method: body === undefined ? 'GET' : 'POST',
     headers: {
       'Content-Type': 'application/json',
       token
     },
-    body: body === undefined ? undefined : JSON.stringify(body)
+    body: body === undefined ? undefined : JSON.stringify(body),
+    signal: AbortSignal.timeout(timeoutMs),
   })
   const payload = await response.json().catch(() => ({}))
   if (!response.ok || payload?.code && Number(payload.code) !== 0) {
@@ -633,7 +679,7 @@ const server = createServer(async (request, response) => {
   }
   if (request.method === 'OPTIONS') {
     response.writeHead(204, {
-      'Access-Control-Allow-Headers': 'Content-Type, token, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, token, Authorization, X-Sales-Token',
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, OPTIONS'
     })
     return response.end()
@@ -663,6 +709,29 @@ const server = createServer(async (request, response) => {
     try {
       return json(response, 200, { data: { translations: await translateSiteContent(request) } })
     } catch (error) {
+      console.error(`[listing-orchestrator] ${request.method} ${url.pathname}: ${error.message || 'Unexpected error'}`)
+      return json(response, error.status || 500, { error: { code: error.code || 'INTERNAL_ERROR', message: error.message || 'Unexpected error' } })
+    }
+  }
+
+  if (request.method === 'POST' && url.pathname === '/v1/journey/events') {
+    if (production && !origin) return json(response, 403, { error: { code: 'ORIGIN_REQUIRED', message: 'A trusted browser origin is required' } })
+    const allowance = journeyRateLimiter.take(requestClientKey(request))
+    if (!allowance.allowed) {
+      response.setHeader('Retry-After', String(Math.max(1, Math.ceil(allowance.retryAfterMs / 1000))))
+      return json(response, 429, { error: { code: 'RATE_LIMITED', message: 'Too many journey events. Please try again shortly.' } })
+    }
+    try {
+      return json(response, 202, { data: leadOperations.ingest(await readBody(request)) })
+    } catch (error) {
+      console.error(`[listing-orchestrator] ${request.method} ${url.pathname}: ${error.message || 'Unexpected error'}`)
+      return json(response, error.status || 500, { error: { code: error.code || 'INTERNAL_ERROR', message: error.message || 'Unexpected error' } })
+    }
+  }
+
+  if (url.pathname.startsWith('/v1/sales/')) {
+    try { return await handleSalesRoute(request, response, url) }
+    catch (error) {
       console.error(`[listing-orchestrator] ${request.method} ${url.pathname}: ${error.message || 'Unexpected error'}`)
       return json(response, error.status || 500, { error: { code: error.code || 'INTERNAL_ERROR', message: error.message || 'Unexpected error' } })
     }

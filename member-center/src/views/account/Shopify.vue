@@ -60,7 +60,7 @@
       <router-link v-if="returnTo" class="return-link" :to="returnTo">{{ $t('channels.return') }}</router-link>
     </section>
 
-    <el-dialog :title="$t('channels.dialogTitle', { name: selectedChannel.name || $t('nav.channels') })" :visible.sync="dialogVisible" width="min(520px, 92vw)" append-to-body>
+    <el-dialog v-model="dialogVisible" :title="$t('channels.dialogTitle', { name: selectedChannel.name || $t('nav.channels') })" width="min(520px, 92vw)" append-to-body>
       <div class="dialog-copy">{{ $t('channels.dialogCopy', { name: selectedChannel.name }) }}</div>
       <label v-if="selectedChannel.requiresName" class="dialog-field">{{ $t('channels.storeName') }}<input v-model.trim="connectionForm.name" type="text" :placeholder="$t('channels.storeNamePlaceholder')" /></label>
       <label v-if="selectedChannel.requiresUrl" class="dialog-field">{{ $t('channels.storeUrl') }}<input v-model.trim="connectionForm.url" type="url" :placeholder="$t('channels.storeUrlPlaceholder')" /></label>
@@ -69,7 +69,7 @@
       <span slot="footer" class="dialog-footer"><el-button @click="dialogVisible = false">{{ $t('common.cancel') }}</el-button><el-button type="primary" :loading="connecting" @click="confirmConnection">{{ $t('channels.continueAuth') }}</el-button></span>
     </el-dialog>
 
-    <el-dialog :title="$t('channels.customDialogTitle')" :visible.sync="customDialogVisible" width="min(760px, 94vw)" append-to-body custom-class="custom-integration-dialog" @closed="resetCustomForm">
+    <el-dialog v-model="customDialogVisible" :title="$t('channels.customDialogTitle')" width="min(760px, 94vw)" append-to-body custom-class="custom-integration-dialog" @closed="resetCustomForm">
       <div v-if="customSubmitted" class="custom-success" role="status">
         <div class="custom-success-icon"><i class="el-icon-check"></i></div>
         <h2>{{ $t('channels.customSuccessTitle') }}</h2>

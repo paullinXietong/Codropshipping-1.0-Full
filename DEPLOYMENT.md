@@ -32,19 +32,14 @@ chmod 600 /etc/codropshipping/codropshipping-1.0.env
 
 ## 3. 构建与启动
 
-发布标签必须唯一，可使用 Git SHA 或发布日期：
+发布标签必须唯一，可使用 Git SHA 或发布日期。完成环境文件后，IT 只需执行一条命令；脚本会先拒绝占位符、空的必填配置、旧 Caddy 服务或缺少服务的部署，然后构建并启动整套系统：
 
 ```bash
-export COD_RELEASE_TAG=2026-08-06.1
 docker network inspect cargosoon-production_default >/dev/null
-./scripts/validate-deployment.sh /etc/codropshipping/codropshipping-1.0.env
-docker compose --env-file /etc/codropshipping/codropshipping-1.0.env \
-  -f web-search/docker-compose.yml build --pull
-docker compose --env-file /etc/codropshipping/codropshipping-1.0.env \
-  -f web-search/docker-compose.yml up -d
-docker compose --env-file /etc/codropshipping/codropshipping-1.0.env \
-  -f web-search/docker-compose.yml ps
+./scripts/deploy-production.sh /etc/codropshipping/codropshipping-1.0.env
 ```
+
+`COD_RELEASE_TAG` 写在服务器环境文件中，推荐使用 Git SHA 或发布日期，不得复用已经发布过的标签。
 
 如果宿主机 80 端口已被旧服务占用，先设置 `COD_HTTP_PORT=8080`，再让现有 HTTPS 入口把整个域名转发到 `127.0.0.1:8080`。不得为 `/admin` 保留任何旧代理。首次上线后执行：
 
@@ -106,4 +101,4 @@ docker compose --env-file /etc/codropshipping/codropshipping-1.0.env \
 - AI 文案与翻译依赖真实 Qwen 服务端配置；Key 缺失时生产服务会拒绝启动，不会伪装成功。
 - AI 图片质量受所选视觉模型和原图质量影响，仍需客户审核；系统提供多风格生成，不保证商品事实识别零误差。
 - Shopify 发布继续调用现有 CoD 发布接口和店铺授权。生产验收必须确认店铺授权、发货仓、变体、价格和库存规则。
-- 旧 Vue 2 客户端运行依赖已做到无 Critical；其历史构建链仍有 High 级开发期告警，详见 `TECH_DEBT.md`，不进入最终 Nginx 运行镜像。
+- 官网与客户工作台均由同一个 Nuxt 3 / Vue 3 产物提供；生产镜像不构建、不复制、也不运行 Vue 2 静态应用。

@@ -1413,6 +1413,7 @@ function saveContentLanguage() {
 
 function goList(mode) {
   saveContentLanguage()
+  window.dispatchEvent(new CustomEvent('cod-journey-event', { detail: { eventName: mode === 'ai' ? 'ai_listing_start' : 'publish_review', metadata: { productId: String(shopId.value), source: String(shopSource.value), language: contentLanguage.value } } }))
   const adminBase = config.public.orderUrl.replace('/admin/order', '')
   const query = new URLSearchParams({
     id: shopId.value,

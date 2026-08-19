@@ -371,7 +371,6 @@
         </div>
       </div>
     </div>
-    <ChatMini />
     <BackTop />
   </div>
 </template>
@@ -379,7 +378,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, inject } from 'vue'
 import { getRate, getProductSearchOfferRecommendHandle, getHistoricalRecordRecommendations, getSpecialCategories, getUserTopCategoryData, getProductRelatedRecommend, addShopList, getCountry, getDefault } from '~/services/api'
-import ChatMini from '~/components/ChatMini.vue'
 definePageMeta({ layout: 'ali' })
 const rate = ref(1)
 const zoneShopify = ref([])
@@ -575,6 +573,7 @@ function chatNow(item) {
 
 function addList(item) {
   if (process.client) {
+    window.dispatchEvent(new CustomEvent('cod-journey-event', { detail: { eventName: 'ai_listing_start', metadata: { productId: String(item.product_id), source: String(item.source) } } }))
     const url = `/admin/account/Publish?id=${item.product_id}&source=${item.source}`
     window.open(url, '_blank')
   }
